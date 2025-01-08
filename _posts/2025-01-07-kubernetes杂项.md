@@ -1373,3 +1373,103 @@ http:
 2. **完全切换**：
 
    - 在确认 `Service 1.1` 稳定后，将所有流量切换到新版本，并逐步淘汰 `Service 1.0`。
+
+### 112、k8s网关路由选择方案：
+
+1. **Ingress**:
+
+   - **功能弱**：默认 Kubernetes 自带的 Ingress 功能较少，但对于简单的路由需求已经足够。
+   - **适用性强**：由于是 Kubernetes 原生支持，兼容性和适用性都非常好。
+2. **HTTPRoute**:
+
+   - **功能一般**：作为 Kubernetes Gateway API 的一部分，提供了更多的功能，但不如 IngressRoute 那么丰富。
+   - **适应性一般**：需要安装 Kubernetes Gateway API 扩展，对于一些集群可能需要额外配置。
+3. **IngressRoute**:
+
+   - **功能强**：Traefik 的 CRD，提供了高级的路由和中间件功能，适合复杂的路由需求。
+   - **适用性一般**：特定于 Traefik，因此在跨供应商环境中适用性可能不如标准 Kubernetes 资源。
+4. **Istio 和其他 Service Mesh**:
+
+   - **功能非常强**：Service Mesh（如 Istio）提供了完整的微服务管理能力，包括流量管理、安全、观察性等。
+   - **适用性**：虽然功能强大，但复杂度和学习曲线较高，适合大型微服务架构。
+
+### 113、k8s链路追踪和应用拓扑选择方案：
+
+1. **SkyWalking 全套方案**
+
+- **SkyWalking OAP (Observability Analysis Platform)**：负责接收、处理和存储追踪和监控数据。
+- **SkyWalking Agent**：安装在应用程序上的代理，用于收集追踪和性能数据。
+- **SkyWalking UI**：提供可视化界面来查看和分析追踪数据和应用拓扑。
+
+**优势**：
+
+- 综合性强，覆盖从数据收集到可视化的完整链条。
+- 支持多种语言和框架。
+
+**弱点**：
+
+- 配置和部署相对复杂。
+- 对资源的需求可能较高。
+
+2. **Jaeger 全套方案**
+
+- **Jaeger Client**：用于在应用程序中进行追踪数据的收集。
+- **Jaeger Collector**：接收来自客户端的追踪数据并进行处理。
+- **Jaeger UI**：提供可视化界面来查看和分析追踪数据。
+
+**优势**：
+
+- 专业的分布式追踪解决方案。
+- 易于与 OpenTelemetry 集成。
+
+**弱点**：
+
+- 仅专注于追踪，不提供全面的监控解决方案。
+- 需要与其他监控工具集成，如 Prometheus。
+
+3. **OpenTelemetry (OTEL) 全套方案**
+
+- **OpenTelemetry SDK**：用于在应用程序中集成 OpenTelemetry，收集追踪和监控数据。
+- **OpenTelemetry Collector**：集中接收、处理和导出追踪和监控数据到不同后端（如 Jaeger 或 SkyWalking）。
+- **Jaeger UI** 或 **SkyWalking UI**：用于可视化追踪数据和应用拓扑。
+
+**优势**：
+
+- 标准化解决方案，广泛支持各种后端。
+- 支持多种语言和框架。
+
+**弱点**：
+
+- 配置可能较为复杂，需要熟悉各组件的配置。
+
+4. **Elastic APM (Application Performance Monitoring) 全套方案**
+
+- **APM Agent**：安装在应用程序上的代理，用于收集追踪和性能数据。
+- **APM Server**：接收和处理来自 APM Agent 的数据。
+- **Kibana**：作为 Elasticsearch 的前端界面，用于数据的可视化和分析。
+
+**优势**：
+
+- 深度集成到 Elastic Stack，提供强大的搜索和分析能力。
+- 支持多种语言和框架。
+
+**弱点**：
+
+- 在高度分布式系统中可能需要更多的配置和调优。
+- 需要管理整个 Elastic Stack，学习成本较高。
+
+5. **Zipkin 全套方案**
+
+- **Zipkin Client**：用于在应用程序中进行追踪数据的收集。
+- **Zipkin Collector**：接收和处理追踪数据。
+- **Zipkin UI**：提供可视化界面来查看和分析追踪数据。
+
+**优势**：
+
+- 设计简单，易于部署和使用。
+- 支持多种追踪导出器，易于与其他追踪系统集成。
+
+**弱点**：
+
+- 可视化能力较为简单，可能不如 Jaeger 或 SkyWalking 那样全面。
+- 需要额外的工具（例如 Prometheus 和 Grafana）来实现全面的监控和告警功能。
