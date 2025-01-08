@@ -1395,7 +1395,7 @@ http:
 
 ### 113、k8s链路追踪和应用拓扑选择方案：
 
-1. **SkyWalking 全套方案**
+#### 1. **SkyWalking 全套方案**
 
 - **SkyWalking OAP (Observability Analysis Platform)**：负责接收、处理和存储追踪和监控数据。
 - **SkyWalking Agent**：安装在应用程序上的代理，用于收集追踪和性能数据。
@@ -1411,7 +1411,7 @@ http:
 - 配置和部署相对复杂。
 - 对资源的需求可能较高。
 
-2. **Jaeger 全套方案**
+#### 2. **Jaeger 全套方案**
 
 - **Jaeger Client**：用于在应用程序中进行追踪数据的收集。
 - **Jaeger Collector**：接收来自客户端的追踪数据并进行处理。
@@ -1427,7 +1427,7 @@ http:
 - 仅专注于追踪，不提供全面的监控解决方案。
 - 需要与其他监控工具集成，如 Prometheus。
 
-3. **OpenTelemetry (OTEL) 全套方案**
+#### 3. **OpenTelemetry (OTEL) 全套方案**
 
 - **OpenTelemetry SDK**：用于在应用程序中集成 OpenTelemetry，收集追踪和监控数据。
 - **OpenTelemetry Collector**：集中接收、处理和导出追踪和监控数据到不同后端（如 Jaeger 或 SkyWalking）。
@@ -1442,7 +1442,7 @@ http:
 
 - 配置可能较为复杂，需要熟悉各组件的配置。
 
-4. **Elastic APM (Application Performance Monitoring) 全套方案**
+#### 4. **Elastic APM (Application Performance Monitoring) 全套方案**
 
 - **APM Agent**：安装在应用程序上的代理，用于收集追踪和性能数据。
 - **APM Server**：接收和处理来自 APM Agent 的数据。
@@ -1458,7 +1458,7 @@ http:
 - 在高度分布式系统中可能需要更多的配置和调优。
 - 需要管理整个 Elastic Stack，学习成本较高。
 
-5. **Zipkin 全套方案**
+#### 5. **Zipkin 全套方案**
 
 - **Zipkin Client**：用于在应用程序中进行追踪数据的收集。
 - **Zipkin Collector**：接收和处理追踪数据。
