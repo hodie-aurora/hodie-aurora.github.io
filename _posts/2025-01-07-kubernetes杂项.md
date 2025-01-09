@@ -4,7 +4,7 @@ title:      kubernetes杂项笔记 			# 标题
 subtitle:   记录k8s与云原生相关的杂项概念		#副标题
 date:       2025-01-07 				# 时间
 author:     zhaohaiwen 				# 作者
-header-img: img/post-bg-2015.jpg 		#这篇文章标题背景图片
+header-img: img/post-bg-2025-01-07.jpg		#这篇文章标题背景图片
 catalog: true 					# 是否归档
 tags:						#标签
     - kubernetes杂项笔记
@@ -1380,11 +1380,11 @@ http:
 
    - **功能弱**：默认 Kubernetes 自带的 Ingress 功能较少，但对于简单的路由需求已经足够。
    - **适用性强**：由于是 Kubernetes 原生支持，兼容性和适用性都非常好。
-2. **HTTPRoute**:
+2. **HTTPRoute(Gateway)**:
 
    - **功能一般**：作为 Kubernetes Gateway API 的一部分，提供了更多的功能，但不如 IngressRoute 那么丰富。
    - **适应性一般**：需要安装 Kubernetes Gateway API 扩展，对于一些集群可能需要额外配置。
-3. **IngressRoute**:
+3. **IngressRoute(Traefik)**:
 
    - **功能强**：Traefik 的 CRD，提供了高级的路由和中间件功能，适合复杂的路由需求。
    - **适用性一般**：特定于 Traefik，因此在跨供应商环境中适用性可能不如标准 Kubernetes 资源。
@@ -1473,3 +1473,96 @@ http:
 
 - 可视化能力较为简单，可能不如 Jaeger 或 SkyWalking 那样全面。
 - 需要额外的工具（例如 Prometheus 和 Grafana）来实现全面的监控和告警功能。
+
+### 114、在 Kubernetes 集群环境中使用 Traefik 和 Gateway 创建多网关
+
+#### 1. 安装和配置 Traefik
+
+首先，需要在 Kubernetes 集群中安装并配置 Traefik 作为入口控制器。可以使用 Helm 图表来简化安装过程：
+
+```bash
+helm repo add traefik https://helm.traefik.io/traefik
+helm install traefik traefik/traefik
+```
+
+在 Helm values 文件中，配置 Traefik 的 entrypoints、service 以及中间件，以支持多入口点和自定义端口。
+
+#### 2. 创建新的 Entrypoint
+
+在 Traefik 的配置文件中，添加一个新的 entrypoint，并指定端口为 8081：
+
+```yaml
+entryPoints:
+  http8081:
+    address: ":8081"
+```
+
+#### 3. 配置 Traefik Service 暴露新的端口
+
+配置 Traefik 的 Service 使用 NodePort 模式，并暴露新的端口：
+
+```yaml
+service:
+  type: NodePort
+  ports:
+    - port: 8081
+      nodePort: 30478
+      name: http8081
+```
+
+#### 4. 创建 GatewayClass 和 Gateway
+
+首先，创建一个 GatewayClass 资源：
+
+```yaml
+apiVersion: networking.x-k8s.io/v1alpha1
+kind: GatewayClass
+metadata:
+  name: my-gateway-class
+spec:
+  controller: traefik.io/gateway-controller
+```
+
+接着，在新的命名空间（例如 `namespace8081`）中创建一个 Gateway 资源，并使用上述 GatewayClass：
+
+```yaml
+apiVersion: networking.x-k8s.io/v1alpha1
+kind: Gateway
+metadata:
+  name: my-gateway
+  namespace: namespace8081
+spec:
+  gatewayClassName: my-gateway-class
+  listeners:
+    - protocol: HTTP
+      port: 8081
+      routes:
+        kind: HTTPRoute
+        namespaces:
+          from: All
+```
+
+#### 5. 创建 HTTPRoute
+
+在 `namespace8081` 命名空间内，创建一个 HTTPRoute 资源，定义具体的路由规则：
+
+```yaml
+apiVersion: networking.x-k8s.io/v1alpha1
+kind: HTTPRoute
+metadata:
+  name: my-httproute
+  namespace: namespace8081
+spec:
+  rules:
+    - matches:
+        - path:
+            type: Prefix
+            value: "/"
+      forwardTo:
+        - serviceName: my-service
+          port: 80
+```
+
+#### 6. 总结
+
+通过以上步骤，我们成功在 Kubernetes 集群中使用 Traefik 和 Gateway 实现了多网关配置。每个命名空间都有独立的 Gateway，通过指定的 NodePort 进行访问，并使用 HTTPRoute 资源定义具体的路由规则。
