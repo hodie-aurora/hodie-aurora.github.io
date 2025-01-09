@@ -1493,9 +1493,14 @@ helm install traefik traefik/traefik
 
 ```yaml
 entryPoints:
-  http8081:
+  entryPointName:
     address: ":8081"
 ```
+
+**Gateway 监听的情况说明**：
+
+- **需要监听**：如果 `entryPointName` 名称和命名空间不同，则 Gateway 需要监听指定的端口（如 8081）。
+- **不需要监听**：如果 `entryPointName` 名称和命名空间相同，则 Gateway 不需要专门监听该端口，只需创建 Gateway 和 HTTPRoute 即可实现流量的转发。
 
 #### 3. 配置 Traefik Service 暴露新的端口
 
@@ -1507,7 +1512,7 @@ service:
   ports:
     - port: 8081
       nodePort: 30478
-      name: http8081
+      name: entryPointName
 ```
 
 #### 4. 创建 GatewayClass 和 Gateway
@@ -1535,7 +1540,7 @@ spec:
   gatewayClassName: my-gateway-class
   listeners:
     - protocol: HTTP
-      port: 8081
+      port: 80  # 这里可以选择任意合适的端口(当namespace和entryPointName名称相同时)
       routes:
         kind: HTTPRoute
         namespaces:
