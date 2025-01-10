@@ -1571,3 +1571,67 @@ spec:
 #### 6. 总结
 
 通过以上步骤，我们成功在 Kubernetes 集群中使用 Traefik 和 Gateway 实现了多网关配置。每个命名空间都有独立的 Gateway，通过指定的 NodePort 进行访问，并使用 HTTPRoute 资源定义具体的路由规则。
+
+### 115、在 Kubernetes 集群中基于 Traefik 和 IngressRoute 实现域名服务访问的原理
+
+在 Kubernetes 集群中，使用 Traefik 作为反向代理和负载均衡器，通过 IngressRoute 实现基于域名的流量路由。这样可以为每个服务分配独立的域名，从而简化服务间的通信和管理。以下是实现这一功能的基本原理：
+
+1. **定义域名和路由规则**：
+
+   - 每个服务需要一个对应的域名，例如 `myapp1.test.com` 和 `myapp2.test.com`。
+   - 为每个服务定义路由规则，使 Traefik 能够根据请求的域名将流量路由到相应的服务。
+2. **创建 IngressRoute 资源**：
+
+   - IngressRoute 资源用于定义入口点、路由规则和后端服务。
+   - 指定入口点（例如 `web`），并配置匹配条件（例如域名）和路由规则。
+   - 为每个服务创建一个单独的 IngressRoute 资源。
+
+   **myapp1 的 IngressRoute 配置：**
+
+   ```yaml
+   apiVersion: traefik.io/v1alpha1
+   kind: IngressRoute
+   metadata:
+     name: myapp1
+     namespace: namespace1
+   spec:
+     entryPoints:
+     - web
+     routes:
+     - match: Host(`myapp1.test.com`)
+       kind: Rule
+       services:
+       - name: myapp1
+         port: 80
+   ```
+
+   **myapp2 的 IngressRoute 配置：**
+
+   ```yaml
+   apiVersion: traefik.io/v1alpha1
+   kind: IngressRoute
+   metadata:
+     name: myapp2
+     namespace: namespace2
+   spec:
+     entryPoints:
+     - web
+     routes:
+     - match: Host(`myapp2.test.com`)
+       kind: Rule
+       services:
+       - name: myapp2
+         port: 80
+   ```
+3. **配置 DNS 或 hosts 文件**：
+
+   - 在本地机器或需要访问这些服务的节点上，配置 DNS 或 `hosts` 文件，将域名解析到相应的节点 IP 地址。
+   - 这样可以确保访问这些域名的请求能够正确地被 Traefik 处理和路由。
+4. **更新服务间访问的配置文件**：
+
+   - 在服务的配置文件中使用域名来访问其他服务，而无需使用具体的 IP 地址和端口。
+   - 这提高了配置文件的可读性和易维护性，并避免了因 IP 地址变动导致的频繁更新问题。
+5. **流量路由和负载均衡**：
+
+   - Traefik 通过入口点接收请求，根据配置的路由规则，将请求转发到对应的服务。
+   - 支持负载均衡，将流量均匀分配到多个后端实例，提高服务的可靠性和可用性。
