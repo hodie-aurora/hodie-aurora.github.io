@@ -1699,3 +1699,285 @@ Response to Browser
 ```
 
 通过以上步骤，在浏览器中访问 `http://testA.com` 时，请求会被正确路由到 `svcA` 服务，实现基于域名的服务访问。
+
+### 117、Traefik IngressRoute匹配规则
+
+1. **Header(`key`, `value`)**：
+
+   - **解释**：匹配包含名为 `key` 且值为 `value` 的请求头的请求。
+   - **IngressRoute 例子**：
+     ```yaml
+     apiVersion: traefik.containo.us/v1alpha1
+     kind: IngressRoute
+     metadata:
+       name: header-example
+       namespace: default
+     spec:
+       entryPoints:
+         - web
+       routes:
+         - match: Header(`User-Agent`, `Mozilla/5.0`)
+           kind: Rule
+           services:
+             - name: my-service
+               port: 80
+     ```
+   - **匹配情况**：
+     - 请求头包含 `User-Agent: Mozilla/5.0`
+   - **无法匹配情况**：
+     - 请求头包含 `User-Agent: Chrome/90.0`
+     - 请求头不包含 `User-Agent`
+2. **HeaderRegexp(`key`, `regexp`)**：
+
+   - **解释**：匹配包含名为 `key` 且值符合正则表达式 `regexp` 的请求头的请求。
+   - **IngressRoute 例子**：
+     ```yaml
+     apiVersion: traefik.containo.us/v1alpha1
+     kind: IngressRoute
+     metadata:
+       name: header-regexp-example
+       namespace: default
+     spec:
+       entryPoints:
+         - web
+       routes:
+         - match: HeaderRegexp(`User-Agent`, `Mozilla.*`)
+           kind: Rule
+           services:
+             - name: my-service
+               port: 80
+     ```
+   - **匹配情况**：
+     - 请求头包含 `User-Agent: Mozilla/5.0`
+     - 请求头包含 `User-Agent: Mozilla/4.0`
+   - **无法匹配情况**：
+     - 请求头包含 `User-Agent: Chrome/90.0`
+     - 请求头不包含 `User-Agent`
+3. **Host(`domain`)**：
+
+   - **解释**：匹配请求的主机名完全等于 `domain` 的请求。
+   - **IngressRoute 例子**：
+     ```yaml
+     apiVersion: traefik.containo.us/v1alpha1
+     kind: IngressRoute
+     metadata:
+       name: host-example
+       namespace: default
+     spec:
+       entryPoints:
+         - web
+       routes:
+         - match: Host(`example.com`)
+           kind: Rule
+           services:
+             - name: my-service
+               port: 80
+     ```
+   - **匹配情况**：
+     - 主机名为 `example.com`
+   - **无法匹配情况**：
+     - 主机名为 `sub.example.com`
+     - 主机名为 `example.org`
+4. **HostRegexp(`regexp`)**：
+
+   - **解释**：匹配请求的主机名符合正则表达式 `regexp` 的请求。
+   - **IngressRoute 例子**：
+     ```yaml
+     apiVersion: traefik.containo.us/v1alpha1
+     kind: IngressRoute
+     metadata:
+       name: host-regexp-example
+       namespace: default
+     spec:
+       entryPoints:
+         - web
+       routes:
+         - match: HostRegexp(`.*\.example\.com`)
+           kind: Rule
+           services:
+             - name: my-service
+               port: 80
+     ```
+   - **匹配情况**：
+     - 主机名为 `sub.example.com`
+     - 主机名为 `another.example.com`
+   - **无法匹配情况**：
+     - 主机名为 `example.com`
+     - 主机名为 `example.org`
+5. **Method(`method`)**：
+
+   - **解释**：匹配请求方法等于 `method` 的请求。
+   - **IngressRoute 例子**：
+     ```yaml
+     apiVersion: traefik.containo.us/v1alpha1
+     kind: IngressRoute
+     metadata:
+       name: method-example
+       namespace: default
+     spec:
+       entryPoints:
+         - web
+       routes:
+         - match: Method(`GET`)
+           kind: Rule
+           services:
+             - name: my-service
+               port: 80
+     ```
+   - **匹配情况**：
+     - 请求方法为 `GET`
+   - **无法匹配情况**：
+     - 请求方法为 `POST`
+     - 请求方法为 `DELETE`
+6. **Path(`path`)**：
+
+   - **解释**：匹配请求路径等于 `path` 的请求。
+   - **IngressRoute 例子**：
+     ```yaml
+     apiVersion: traefik.containo.us/v1alpha1
+     kind: IngressRoute
+     metadata:
+       name: path-example
+       namespace: default
+     spec:
+       entryPoints:
+         - web
+       routes:
+         - match: Path(`/about`)
+           kind: Rule
+           services:
+             - name: my-service
+               port: 80
+     ```
+   - **匹配情况**：
+     - 请求路径为 `/about`
+   - **无法匹配情况**：
+     - 请求路径为 `/aboutus`
+     - 请求路径为 `/contact`
+7. **PathPrefix(`prefix`)**：
+
+   - **解释**：匹配请求路径前缀为 `prefix` 的请求。
+   - **IngressRoute 例子**：
+     ```yaml
+     apiVersion: traefik.containo.us/v1alpha1
+     kind: IngressRoute
+     metadata:
+       name: path-prefix-example
+       namespace: default
+     spec:
+       entryPoints:
+         - web
+       routes:
+         - match: PathPrefix(`/api`)
+           kind: Rule
+           services:
+             - name: my-service
+               port: 80
+     ```
+   - **匹配情况**：
+     - 请求路径为 `/api`
+     - 请求路径为 `/api/users`
+   - **无法匹配情况**：
+     - 请求路径为 `/about/api`
+     - 请求路径为 `/apiv2`
+8. **PathRegexp(`regexp`)**：
+
+   - **解释**：使用正则表达式 `regexp` 匹配请求路径的请求。
+   - **IngressRoute 例子**：
+     ```yaml
+     apiVersion: traefik.containo.us/v1alpha1
+     kind: IngressRoute
+     metadata:
+       name: path-regexp-example
+       namespace: default
+     spec:
+       entryPoints:
+         - web
+       routes:
+         - match: PathRegexp(`/products/.*`)
+           kind: Rule
+           services:
+             - name: my-service
+               port: 80
+     ```
+   - **匹配情况**：
+     - 请求路径为 `/products`
+     - 请求路径为 `/products/123`
+   - **无法匹配情况**：
+     - 请求路径为 `/product`
+     - 请求路径为 `/services`
+9. **Query(`key`, `value`)**：
+
+   - **解释**：匹配查询参数 `key` 等于 `value` 的请求。
+   - **IngressRoute 例子**：
+     ```yaml
+     apiVersion: traefik.containo.us/v1alpha1
+     kind: IngressRoute
+     metadata:
+       name: query-example
+       namespace: default
+     spec:
+       entryPoints:
+         - web
+       routes:
+         - match: Query(`id`, `123`)
+           kind: Rule
+           services:
+             - name: my-service
+               port: 80
+     ```
+   - **匹配情况**：
+     - 查询参数为 `id=123`，例如 `/search?id=123`
+   - **无法匹配情况**：
+     - 查询参数为 `id=456`
+     - 不包含查询参数 `id`
+10. **QueryRegexp(`key`, `regexp`)**：
+
+    - **解释**：匹配查询参数 `key` 的值符合正则表达式 `regexp` 的请求。
+    - **IngressRoute 例子**：
+      ```yaml
+      apiVersion: traefik.containo.us/v1alpha1
+      kind: IngressRoute
+      metadata:
+        name: query-regexp-example
+        namespace: default
+      spec:
+        entryPoints:
+          - web
+        routes:
+          - match: QueryRegexp(`id`, `\d+`)
+            kind: Rule
+            services:
+              - name: my-service
+                port: 80
+      ```
+    - **匹配情况**：
+      - 查询参数为 `id=123` 或 `id=456`（任意数字），例如 `/search?id=123`
+    - **无法匹配情况**：
+      - 查询参数为 `id=abc`
+      - 不包含查询参数 `id`
+11. **ClientIP(`ip`)**：
+
+    - **解释**：匹配请求的客户端 IP 地址为 `ip` 的请求。它接受 IPv4、IPv6 和 CIDR 格式。
+    - **IngressRoute 例子**：
+      ```yaml
+      apiVersion: traefik.containo.us/v1alpha1
+      kind: IngressRoute
+      metadata:
+        name: client-ip-example
+        namespace: default
+      spec:
+        entryPoints:
+          - web
+        routes:
+          - match: ClientIP(`192.168.1.1`)
+            kind: Rule
+            services:
+              - name: my-service
+                port: 80
+      ```
+    - **匹配情况**：
+      - 客户端 IP 为 `192.168.1.1`
+    - **无法匹配情况**：
+      - 客户端 IP 为 `192.168.1.2`
+      - 客户端 IP 为 `10.0.0.1`
