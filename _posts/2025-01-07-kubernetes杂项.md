@@ -1635,3 +1635,67 @@ spec:
 
    - Traefik 通过入口点接收请求，根据配置的路由规则，将请求转发到对应的服务。
    - 支持负载均衡，将流量均匀分配到多个后端实例，提高服务的可靠性和可用性。
+
+### 116、Traefik  IngressRoute 域名服务访问流程
+
+##### 1. IngressRoute 配置
+
+在命名空间 A 中创建了一个 IngressRouteA，配置 `svcA` 的域名为 `testA.com`。例如：
+
+```yaml
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: ingressroutea
+  namespace: namespaceA
+spec:
+  entryPoints:
+  - web
+  routes:
+  - match: Host(`testA.com`)
+    kind: Rule
+    services:
+    - name: svcA
+      port: 80
+```
+
+##### 2. 配置 hosts 文件
+
+你在本地机器上的 `hosts` 文件中配置了域名解析，将 `testA.com` 指向 Traefik 的入口点 IP 地址。例如：
+
+```plaintext
+192.168.93.128    testA.com
+```
+
+##### 3. 访问流程
+
+当你在浏览器中访问 `http://testA.com` 时，整个请求处理流程如下：
+
+1. **DNS 解析**：浏览器通过 hosts 文件将 `testA.com` 解析为 `192.168.93.128`（节点ip）。
+2. **请求到达 Traefik**：解析后的请求到达 Traefik 的入口点（例如 `web`）。
+3. **匹配 IngressRoute 规则**：Traefik 检查所有配置的 IngressRoute 资源，根据请求的域名 `testA.com` 匹配到 IngressRouteA 的规则。
+4. **路由到相应服务**：根据 IngressRouteA 的配置，Traefik 将请求路由到命名空间 A 中的 `svcA` 服务。
+5. **响应返回**：`svcA` 服务处理请求并生成响应，通过 Traefik 返回给浏览器。
+
+##### 流程图示意
+
+```
+Browser (request to http://testA.com)
+        |
+        V
+DNS Resolution (hosts file: testA.com -> 192.168.93.128)
+        |
+        V
+Traefik EntryPoint (IP: 192.168.93.128)
+        |
+        V
+IngressRouteA (Host: testA.com -> Service: svcA, Port: 80)
+        |
+        V
+svcA Service (in namespaceA)
+        |
+        V
+Response to Browser
+```
+
+通过以上步骤，在浏览器中访问 `http://testA.com` 时，请求会被正确路由到 `svcA` 服务，实现基于域名的服务访问。
