@@ -2019,7 +2019,6 @@ Accept-Language: en-US,en;q=0.9
 
 确保每一层代理和负载均衡器正确配置和传递 `X-Forwarded-For`头信息，可以有效解决多级网络环境中IP地址丢失的问题，提高系统的透明性和可追溯性。
 
-
 ### 119、Traefik middlewares用法
 
 ##### AddPrefix 中间件
@@ -2474,3 +2473,659 @@ spec:
 
 - 使用前：`http://example.com/foo/bar`
 - 使用后：`http://example.com/bar`
+
+### 120、Gateway HTTPRoute 用法
+
+#### 条件类型
+
+##### 1. **路径匹配 (Path-based Routing)**
+
+```yaml
+apiVersion: gateway.networking.k8s.io/v1alpha2
+kind: HTTPRoute
+metadata:
+  name: path-route
+spec:
+  parentRefs:
+    - name: my-gateway
+  hostnames:
+    - "example.com"
+  rules:
+    - matches:
+        - path:
+            type: Prefix
+            value: "/api"
+      forwardTo:
+        - serviceName: my-api-service
+          port: 80
+```
+
+**通过的数据类型**:
+
+- 路径以 `/api`开头的请求，如 `http://example.com/api/user`。
+
+**不通过的数据类型**:
+
+- 路径不以 `/api`开头的请求，如 `http://example.com/home`。
+
+##### 2. **主机名匹配 (Host-based Routing)**
+
+```yaml
+apiVersion: gateway.networking.k8s.io/v1alpha2
+kind: HTTPRoute
+metadata:
+  name: host-route
+spec:
+  parentRefs:
+    - name: my-gateway
+  hostnames:
+    - "api.example.com"
+  rules:
+    - matches:
+        - path:
+            type: Prefix
+            value: "/"
+      forwardTo:
+        - serviceName: my-api-service
+          port: 80
+```
+
+**通过的数据类型**:
+
+- 主机名为 `api.example.com`的请求，如 `http://api.example.com/products`。
+
+**不通过的数据类型**:
+
+- 主机名不是 `api.example.com`的请求，如 `http://example.com/`。
+
+##### 3. **头信息匹配 (Header-based Routing)**
+
+```yaml
+apiVersion: gateway.networking.k8s.io/v1alpha2
+kind: HTTPRoute
+metadata:
+  name: header-route
+spec:
+  parentRefs:
+    - name: my-gateway
+  hostnames:
+    - "example.com"
+  rules:
+    - matches:
+        - headers:
+            - name: X-Env
+              value: production
+      forwardTo:
+        - serviceName: my-prod-service
+          port: 80
+```
+
+**通过的数据类型**:
+
+- 带有 `X-Env: production`头信息的请求。
+
+**不通过的数据类型**:
+
+- 缺少 `X-Env`头信息或 `X-Env`值不为 `production`的请求。
+
+##### 4. **查询参数匹配 (Query Parameter-based Routing)**
+
+```yaml
+apiVersion: gateway.networking.k8s.io/v1alpha2
+kind: HTTPRoute
+metadata:
+  name: query-route
+spec:
+  parentRefs:
+    - name: my-gateway
+  hostnames:
+    - "example.com"
+  rules:
+    - matches:
+        - queryParams:
+            - name: env
+              value: staging
+      forwardTo:
+        - serviceName: my-staging-service
+          port: 80
+```
+
+**通过的数据类型**:
+
+- 带有查询参数 `env=staging`的请求，如 `http://example.com/?env=staging`。
+
+**不通过的数据类型**:
+
+- 缺少查询参数 `env`或 `env`值不为 `staging`的请求。
+
+##### 5. **方法匹配 (Method-based Routing)**
+
+```yaml
+apiVersion: gateway.networking.k8s.io/v1alpha2
+kind: HTTPRoute
+metadata:
+  name: method-route
+spec:
+  parentRefs:
+    - name: my-gateway
+  hostnames:
+    - "example.com"
+  rules:
+    - matches:
+        - method: GET
+      forwardTo:
+        - serviceName: my-get-service
+          port: 80
+```
+
+**通过的数据类型**:
+
+- 使用GET方法的请求，如 `GET http://example.com/api/resource`。
+
+**不通过的数据类型**:
+
+- 使用其他方法（如POST, PUT, DELETE）的请求。
+
+##### 6. **来源IP匹配 (IP Source-based Routing)**
+
+```yaml
+apiVersion: gateway.networking.k8s.io/v1alpha2
+kind: HTTPRoute
+metadata:
+  name: ip-source-route
+spec:
+  parentRefs:
+    - name: my-gateway
+  hostnames:
+    - "example.com"
+  rules:
+    - matches:
+        - source:
+            addresses: ["192.168.1.0/24"]
+      forwardTo:
+        - serviceName: my-internal-service
+          port: 80
+```
+
+**通过的数据类型**:
+
+- 来源IP地址在 `192.168.1.0/24`范围内的请求。
+
+**不通过的数据类型**:
+
+- 不在指定IP范围内的请求。
+
+#### 过滤器类型
+
+##### 1. **重定向 (Redirect)**
+
+```yaml
+apiVersion: gateway.networking.k8s.io/v1alpha2
+kind: HTTPRoute
+metadata:
+  name: redirect-route
+spec:
+  parentRefs:
+    - name: my-gateway
+  hostnames:
+    - "example.com"
+  rules:
+    - matches:
+        - path:
+            type: Exact
+            value: "/old-path"
+      filters:
+        - type: HTTPRedirect
+          statusCode: 302
+          path: "/new-path"
+```
+
+**通过的数据类型**:
+
+- 访问 `/old-path`的请求将被重定向到 `/new-path`。
+
+**不通过的数据类型**:
+
+- 不符合路径规则的请求。
+
+##### 2. **重写 (Rewrite)**
+
+```yaml
+apiVersion: gateway.networking.k8s.io/v1alpha2
+kind: HTTPRoute
+metadata:
+  name: rewrite-route
+spec:
+  parentRefs:
+    - name: my-gateway
+  hostnames:
+    - "example.com"
+  rules:
+    - matches:
+        - path:
+            type: Prefix
+            value: "/old-path"
+      filters:
+        - type: URLRewrite
+          urlRewrite:
+            path: "/new-path"
+      forwardTo:
+        - serviceName: my-rewrite-service
+          port: 80
+```
+
+**通过的数据类型**:
+
+- 路径以 `/old-path`开头的请求会被重写为 `/new-path`，然后转发到后端服务。
+
+**不通过的数据类型**:
+
+- 不符合路径规则的请求。
+
+##### 3. **限流 (Rate Limiting)**
+
+```yaml
+apiVersion: gateway.networking.k8s.io/v1alpha2
+kind: HTTPRoute
+metadata:
+  name: rate-limit-route
+spec:
+  parentRefs:
+    - name: my-gateway
+  hostnames:
+    - "example.com"
+  rules:
+    - matches:
+        - path:
+            type: Prefix
+            value: "/api"
+      filters:
+        - type: RequestHeaderModifier
+          requestHeaderModifier:
+            set:
+              - name: X-RateLimit-Limit
+                value: "100"
+              - name: X-RateLimit-Remaining
+                value: "99"
+      forwardTo:
+        - serviceName: my-rate-limited-service
+          port: 80
+```
+
+**通过的数据类型**:
+
+- 符合限流规则的请求，每秒限制100个请求。
+
+**不通过的数据类型**:
+
+- 超出限流限制的请求。
+
+##### 4. **请求头修改 (Request Header Modifier)**
+
+```yaml
+apiVersion: gateway.networking.k8s.io/v1alpha2
+kind: HTTPRoute
+metadata:
+  name: request-header-modifier-route
+spec:
+  parentRefs:
+    - name: my-gateway
+  hostnames:
+    - "example.com"
+  rules:
+    - matches:
+        - path:
+            type: Prefix
+            value: "/"
+      filters:
+        - type: RequestHeaderModifier
+          requestHeaderModifier:
+            set:
+              - name: X-Custom-Header
+                value: "custom-value"
+      forwardTo:
+        - serviceName: my-service
+          port: 80
+```
+
+**通过的数据类型**:
+
+- 所有请求会在请求头中添加 `X-Custom-Header: custom-value`。
+
+**不通过的数据类型**:
+
+- 不符合路径规则的请求。
+
+##### 5. **响应头修改 (Response Header Modifier)**
+
+```yaml
+apiVersion: gateway.networking.k8s.io/v1alpha2
+kind: HTTPRoute
+metadata:
+  name: response-header-modifier-route
+spec:
+  parentRefs:
+    - name: my-gateway
+  hostnames:
+    - "example.com"
+  rules:
+    - matches:
+        - path:
+            type: Prefix
+            value: "/api"
+      filters:
+        - type: ResponseHeaderModifier
+          responseHeaderModifier:
+            set:
+              - name: Cache-Control
+                value: "no-store"
+      forwardTo:
+        - serviceName: my-api-service
+          port: 80
+```
+
+**通过的数据类型**:
+
+- 请求路径以 `/api`开头，并会在响应头中添加 `Cache-Control: no-store`。
+
+**不通过的数据类型**:
+
+- 不符合路径规则的请求。
+
+##### 6. **自定义过滤器 (Custom Filter)**
+
+```yaml
+apiVersion: gateway.networking.k8s.io/v1alpha2
+kind: HTTPRoute
+metadata:
+  name: custom-route
+spec:
+  parentRefs:
+    - name: my-gateway
+  hostnames:
+    - "example.com"
+  rules:
+    - matches:
+        - path:
+            type: Prefix
+            value: "/custom"
+      forwardTo:
+        - serviceName: my-custom-service
+          port: 80
+      filters:
+        - type: Custom
+          custom:
+            config:
+              key: "value"
+```
+
+**通过的数据类型**:
+
+- 路径以 `/custom`开头的请求，并应用自定义过滤器。
+
+**不通过的数据类型**:
+
+- 不符合路径规则的请求。
+
+##### 7. **JWT认证 (JWT Authentication)**
+
+```yaml
+apiVersion: gateway.networking.k8s.io/v1alpha2
+kind: HTTPRoute
+metadata:
+  name: jwt-auth-route
+spec:
+  parentRefs:
+    - name: my-gateway
+  hostnames:
+    - "example.com"
+  rules:
+    - matches:
+        - path:
+            type: Prefix
+            value: "/secure"
+      filters:
+        - type: JWT
+          jwt:
+            issuer: "https://issuer.example.com/"
+            jwksURL: "https://issuer.example.com/.well-known/jwks.json"
+      forwardTo:
+        - serviceName: my-secure-service
+          port: 80
+```
+
+**通过的数据类型**:
+
+- 带有有效JWT令牌的请求，路径以 `/secure`开头。
+
+**不通过的数据类型**:
+
+- 缺少JWT令牌或令牌无效的请求。
+
+##### 8. **缓存 (Caching)**
+
+```yaml
+apiVersion: gateway.networking.k8s.io/v1alpha2
+kind: HTTPRoute
+metadata:
+  name: caching-route
+spec:
+  parentRefs:
+    - name: my-gateway
+  hostnames:
+    - "example.com"
+  rules:
+    - matches:
+        - path:
+            type: Prefix
+            value: "/static"
+      filters:
+        - type: Cache
+          cache:
+            ttl: "300s"
+      forwardTo:
+        - serviceName: my-static-service
+          port: 80
+```
+
+**通过的数据类型**:
+
+- 访问 `/static`路径的请求，内容将在缓存中存储300秒。
+
+**不通过的数据类型**:
+
+- 不符合路径规则的请求或超出缓存时间的请求。
+
+#### 综合示例
+
+##### 9. **基于访问控制列表 (ACL) 的路由 (Access Control List Routing)**
+
+```yaml
+apiVersion: gateway.networking.k8s.io/v1alpha2
+kind: HTTPRoute
+metadata:
+  name: acl-route
+spec:
+  parentRefs:
+    - name: my-gateway
+  hostnames:
+    - "example.com"
+  rules:
+    - matches:
+        - path:
+            type: Prefix
+            value: "/restricted"
+      filters:
+        - type: ACL
+          acl:
+            allow: ["192.168.1.0/24", "10.0.0.0/16"]
+      forwardTo:
+        - serviceName: my-restricted-service
+          port: 80
+```
+
+**通过的数据类型**:
+
+- 请求来源IP地址在 `192.168.1.0/24`或 `10.0.0.0/16`范围内的请求，路径以 `/restricted`开头。
+
+**不通过的数据类型**:
+
+- 来源IP地址不在允许范围内的请求。
+
+##### 10. **基于语言的路由 (Language-based Routing)**
+
+```yaml
+apiVersion: gateway.networking.k8s.io/v1alpha2
+kind: HTTPRoute
+metadata:
+  name: language-route
+spec:
+  parentRefs:
+    - name: my-gateway
+  hostnames:
+    - "example.com"
+  rules:
+    - matches:
+        - headers:
+            - name: Accept-Language
+              value: "en"
+      forwardTo:
+        - serviceName: my-english-service
+          port: 80
+```
+
+**通过的数据类型**:
+
+- 请求头包含 `Accept-Language: en`的请求，通常表示英语用户的请求。
+
+**不通过的数据类型**:
+
+- 请求头中不包含 `Accept-Language`或值不为 `en`的请求。
+
+##### 11. **基于Cookie的路由 (Cookie-based Routing)**
+
+```yaml
+apiVersion: gateway.networking.k8s.io/v1alpha2
+kind: HTTPRoute
+metadata:
+  name: cookie-route
+spec:
+  parentRefs:
+    - name: my-gateway
+  hostnames:
+    - "example.com"
+  rules:
+    - matches:
+        - headers:
+            - name: Cookie
+              value: "user=vip"
+      forwardTo:
+        - serviceName: my-vip-service
+          port: 80
+```
+
+**通过的数据类型**:
+
+- 请求包含 `Cookie: user=vip`的请求，通常表示VIP用户的请求。
+
+**不通过的数据类型**:
+
+- 请求中不包含指定Cookie的请求。
+
+##### 12. **基于设备指纹的路由 (Device Fingerprinting Routing)**
+
+```yaml
+apiVersion: gateway.networking.k8s.io/v1alpha2
+kind: HTTPRoute
+metadata:
+  name: device-fingerprint-route
+spec:
+  parentRefs:
+    - name: my-gateway
+  hostnames:
+    - "example.com"
+  rules:
+    - matches:
+        - headers:
+            - name: X-Device-Fingerprint
+              value: "device123"
+      forwardTo:
+        - serviceName: my-device-service
+          port: 80
+```
+
+**通过的数据类型**:
+
+- 请求头包含 `X-Device-Fingerprint: device123`的请求，通常表示特定设备的请求。
+
+**不通过的数据类型**:
+
+- 请求头中不包含指定设备指纹的请求。
+
+##### 13. **基于SSL证书的路由 (SSL Certificate-based Routing)**
+
+```yaml
+apiVersion: gateway.networking.k8s.io/v1alpha2
+kind: HTTPRoute
+metadata:
+  name: ssl-cert-route
+spec:
+  parentRefs:
+    - name: my-gateway
+  hostnames:
+    - "secure.example.com"
+  rules:
+    - matches:
+        - path:
+            type: Prefix
+            value: "/secure"
+      forwardTo:
+        - serviceName: my-ssl-service
+          port: 443
+      filters:
+        - type: SSLRedirect
+          sslRedirect:
+            statusCode: 301
+```
+
+**通过的数据类型**:
+
+- 通过HTTPS协议访问 `/secure`路径，并且使用有效SSL证书的请求。
+
+**不通过的数据类型**:
+
+- 不使用SSL证书或通过HTTP访问的请求。
+
+##### 14. **基于缓存的路由 (Caching Routing)**
+
+```yaml
+apiVersion: gateway.networking.k8s.io/v1alpha2
+kind: HTTPRoute
+metadata:
+  name: caching-route
+spec:
+  parentRefs:
+    - name: my-gateway
+  hostnames:
+    - "example.com"
+  rules:
+    - matches:
+        - path:
+            type: Prefix
+            value: "/static"
+      filters:
+        - type: Cache
+          cache:
+            ttl: "300s"
+      forwardTo:
+        - serviceName: my-static-service
+          port: 80
+```
+
+**通过的数据类型**:
+
+- 访问 `/static`路径的请求，内容将在缓存中存储300秒。
+
+**不通过的数据类型**:
+
+- 不符合路径规则的请求或超出缓存时间的请求。
