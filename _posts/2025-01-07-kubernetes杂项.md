@@ -2018,3 +2018,459 @@ Accept-Language: en-US,en;q=0.9
 通过使用 `X-Forwarded-For`头信息，可以在多层负载均衡和反向代理的环境下，确保客户端的原始IP地址不会丢失。这对于日志记录、访问控制和地理位置识别等应用层需求至关重要。
 
 确保每一层代理和负载均衡器正确配置和传递 `X-Forwarded-For`头信息，可以有效解决多级网络环境中IP地址丢失的问题，提高系统的透明性和可追溯性。
+
+
+### 119、Traefik middlewares用法
+
+##### AddPrefix 中间件
+
+```yaml
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: addprefix
+  namespace: demo
+spec:
+  addPrefix:
+    prefix: "/foo"
+```
+
+**功能**：在请求路径前添加前缀。
+
+**示例**：
+
+- 使用前：`http://example.com/bar`
+- 使用后：`http://example.com/foo/bar`
+
+##### BasicAuth 中间件
+
+```yaml
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: basicauth
+  namespace: demo
+spec:
+  basicAuth:
+    users:
+      - "user:password"
+```
+
+**功能**：添加基础身份验证。
+
+**示例**：
+
+- 使用前：无需身份验证即可访问资源。
+- 使用后：访问资源时需要提供用户名和密码。
+
+##### Buffering 中间件
+
+```yaml
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: buffering
+  namespace: demo
+spec:
+  buffering: {}
+```
+
+**功能**：对请求/响应进行缓冲。
+
+**示例**：
+
+- 使用前：请求/响应没有缓冲。
+- 使用后：请求/响应进行缓冲。
+
+##### Chain 中间件
+
+```yaml
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: chain
+  namespace: demo
+spec:
+  chain:
+    middlewares:
+      - "middleware1"
+      - "middleware2"
+```
+
+**功能**：组合多个中间件。
+
+**示例**：
+
+- 使用前：分别调用多个中间件。
+- 使用后：通过一个链式中间件调用多个中间件。
+
+##### CircuitBreaker 中间件
+
+```yaml
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: circuitbreaker
+  namespace: demo
+spec:
+  circuitBreaker:
+    expression: "LatencyAtQuantileMS(50.0) > 100"
+```
+
+**功能**：防止调用不健康的服务。
+
+**示例**：
+
+- 使用前：对不健康的服务仍然进行调用。
+- 使用后：对不健康的服务停止调用。
+
+##### Compress 中间件
+
+```yaml
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: compress
+  namespace: demo
+spec:
+  compress: {}
+```
+
+**功能**：压缩响应。
+
+**示例**：
+
+- 使用前：响应内容未压缩。
+- 使用后：响应内容被压缩，减少带宽使用。
+
+##### ContentType 中间件
+
+```yaml
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: contenttype
+  namespace: demo
+spec:
+  contentType: {}
+```
+
+**功能**：处理 Content-Type 自动检测。
+
+**示例**：
+
+- 使用前：请求未处理 Content-Type。
+- 使用后：请求自动检测并处理 Content-Type。
+
+##### DigestAuth 中间件
+
+```yaml
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: digestauth
+  namespace: demo
+spec:
+  digestAuth:
+    users:
+      - "user:password"
+```
+
+**功能**：添加摘要身份验证。
+
+**示例**：
+
+- 使用前：无需身份验证即可访问资源。
+- 使用后：访问资源时需要提供摘要认证的用户名和密码。
+
+##### Errors 中间件
+
+```yaml
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: errors
+  namespace: demo
+spec:
+  errors:
+    status:
+      - "404"
+    service:
+      name: error-page
+      port: 80
+```
+
+**功能**：定义自定义错误页面。
+
+**示例**：
+
+- 使用前：请求返回标准的错误页面，例如 404 页面。
+- 使用后：请求返回自定义的错误页面。
+
+##### ForwardAuth 中间件
+
+```yaml
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: forwardauth
+  namespace: demo
+spec:
+  forwardAuth:
+    address: "http://auth.example.com/verify"
+```
+
+**功能**：委托身份验证到外部服务。
+
+**示例**：
+
+- 使用前：无需身份验证即可访问资源。
+- 使用后：访问资源时需要通过外部身份验证服务验证。
+
+##### Headers 中间件
+
+```yaml
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: headers
+  namespace: demo
+spec:
+  headers:
+    customRequestHeaders:
+      X-Custom-Header: "myvalue"
+```
+
+**功能**：添加/更新请求头。
+
+**示例**：
+
+- 使用前：请求头中没有 `X-Custom-Header`。
+- 使用后：请求头中添加了 `X-Custom-Header: "myvalue"`。
+
+##### IPAllowList 中间件
+
+```yaml
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: ipallowlist
+  namespace: demo
+spec:
+  ipAllowList:
+    sourceRange:
+      - "192.168.1.0/24"
+```
+
+**功能**：限制允许的客户端 IP 范围。
+
+**示例**：
+
+- 使用前：任何客户端都可以访问资源。
+- 使用后：仅 IP 地址在 `192.168.1.0/24` 范围内的客户端可以访问资源。
+
+##### InFlightReq 中间件
+
+```yaml
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: inflightreq
+  namespace: demo
+spec:
+  inFlightReq:
+    amount: 10
+```
+
+**功能**：限制同时进行的连接数。
+
+**示例**：
+
+- 使用前：不限连接数。
+- 使用后：限制同时进行的连接数最多为10。
+
+##### PassTLSClientCert 中间件
+
+```yaml
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: passtlsclientcert
+  namespace: demo
+spec:
+  passTLSClientCert:
+    pem: true
+```
+
+**功能**：在请求头中添加客户端证书。
+
+**示例**：
+
+- 使用前：请求头中没有客户端证书信息。
+- 使用后：请求头中添加了客户端证书信息。
+
+##### RateLimit 中间件
+
+```yaml
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: ratelimit
+  namespace: demo
+spec:
+  rateLimit:
+    average: 5
+    burst: 5
+    period: 1s
+```
+
+**功能**：限制调用频率，平均每秒5次请求，突发允许5次。
+
+**示例**：
+
+- 使用前：客户端可以无限制地发送请求。
+- 使用后：客户端每秒最多可以发送5次请求，超出限制的请求将被拒绝。
+
+##### RedirectScheme 中间件
+
+```yaml
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: redirectscheme
+  namespace: demo
+spec:
+  redirectScheme:
+    scheme: https
+```
+
+**功能**：将 HTTP 请求重定向为 HTTPS 请求。
+
+**示例**：
+
+- 使用前：`http://example.com`
+- 使用后：`https://example.com`
+
+##### RedirectRegex 中间件
+
+```yaml
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: redirectregex
+  namespace: demo
+spec:
+  redirectRegex:
+    regex: "^http://(.*)"
+    replacement: "https://$1"
+```
+
+**功能**：基于正则表达式进行重定向。
+
+**示例**：
+
+- 使用前：`http://example.com`
+- 使用后：`https://example.com`
+
+##### ReplacePath 中间件
+
+```yaml
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: replacepath
+  namespace: demo
+spec:
+  replacePath:
+    path: "/newpath"
+```
+
+**功能**：更改请求的路径。
+
+**示例**：
+
+- 使用前：`http://example.com/oldpath`
+- 使用后：`http://example.com/newpath`
+
+##### ReplacePathRegex 中间件
+
+```yaml
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: replacepathregex
+  namespace: demo
+spec:
+  replacePathRegex:
+    regex: "^/oldpath/(.*)"
+    replacement: "/newpath/$1"
+```
+
+**功能**：使用正则表达式更改请求路径。
+
+**示例**：
+
+- 使用前：`http://example.com/oldpath/foo`
+- 使用后：`http://example.com/newpath/foo`
+
+##### Retry 中间件
+
+```yaml
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: retry
+  namespace: demo
+spec:
+  retry:
+    attempts: 3
+```
+
+**功能**：在发生错误时自动重试请求。
+
+**示例**：
+
+- 使用前：请求失败后不会重试。
+- 使用后：请求失败后会自动重试3次。
+
+##### StripPrefix 中间件
+
+```yaml
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: stripprefix
+  namespace: demo
+spec:
+  stripPrefix:
+    prefixes:
+      - "/foo"
+```
+
+**功能**：通过去除前缀更改请求路径。
+
+**示例**：
+
+- 使用前：`http://example.com/foo/bar`
+- 使用后：`http://example.com/bar`
+
+##### StripPrefixRegex 中间件
+
+```yaml
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: stripprefixregex
+  namespace: demo
+spec:
+  stripPrefixRegex:
+    regex:
+      - "^/foo/(.*)"
+```
+
+**功能**：通过正则表达式去除前缀更改请求路径。
+
+**示例**：
+
+- 使用前：`http://example.com/foo/bar`
+- 使用后：`http://example.com/bar`
