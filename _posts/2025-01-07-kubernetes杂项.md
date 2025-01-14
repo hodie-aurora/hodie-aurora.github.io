@@ -1268,3 +1268,105 @@ BestEffort： Pod 没有请求或限制资源。资源使用根据系统资源�
 
 1. **NAT**：主要处理IP地址的转换，可以是静态或动态的。
 2. **NAPT**：是在NAT的基础上添加了端口号的转换，使得单个公共IP地址可以同时服务多个内部设备。
+
+### 109、Kubernetes中读取配置的优先级
+
+在现代应用程序开发中，尤其是使用Kubernetes进行部署时，配置管理是一个关键的部分。Kubernetes提供了多种方式来管理和读取应用程序的配置，如ConfigMap、环境变量、命令行参数和默认配置文件。了解这些配置的读取优先级可以帮助开发人员更好地管理和组织应用配置。
+
+##### 配置读取方式
+
+1. **环境变量**
+2. **命令行参数**
+3. **挂载的ConfigMap文件**
+4. **默认配置文件**
+
+##### 配置读取优先级详解
+
+###### 1. 环境变量
+
+环境变量是应用程序读取配置时的最高优先级。通过环境变量，可以直接在Pod的定义中注入配置值。例如：
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-app
+spec:
+  containers:
+  - name: my-container
+    image: my-java-app:latest
+    env:
+    - name: A
+      value: "env_value_A"
+    - name: B
+      value: "env_value_B"
+```
+
+在这种情况下，配置值 `A`和 `B`会被设置为环境变量的值 `env_value_A`和 `env_value_B`。
+
+##### 2. 命令行参数
+
+如果没有通过环境变量提供配置值，应用程序会检查命令行参数。命令行参数的值优先级仅次于环境变量。例如，通过以下命令启动应用：
+
+```bash
+java -jar my-java-app.jar --A=cli_value_A --B=cli_value_B
+```
+
+此时，`A`和 `B`会被设置为命令行参数的值 `cli_value_A`和 `cli_value_B`，前提是环境变量没有覆盖这些值。
+
+##### 3. 挂载的ConfigMap文件
+
+ConfigMap是Kubernetes中一种常用的配置管理方式。可以将ConfigMap中的配置文件挂载到Pod中，应用程序读取挂载的文件中的配置值。例如：
+
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  application.properties: |
+    A=configmap_value_A
+    B=configmap_value_B
+```
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-app
+spec:
+  containers:
+  - name: my-container
+    image: my-java-app:latest
+    volumeMounts:
+    - name: config-volume
+      mountPath: /config
+  volumes:
+  - name: config-volume
+    configMap:
+      name: app-config
+```
+
+在这种情况下，应用程序会读取挂载的ConfigMap文件中的配置值，如果没有环境变量和命令行参数提供这些值，则 `A`和 `B`会被设置为 `configmap_value_A`和 `configmap_value_B`。
+
+##### 4. 默认配置文件
+
+最后，如果上述所有来源都没有提供某个配置值，应用程序会使用默认配置文件中的值。例如，在默认配置文件 `application.properties`中：
+
+```properties
+# application.properties
+A=default_value_A
+B=default_value_B
+C=default_value_C
+```
+
+此时，如果ConfigMap文件和其他配置来源没有提供 `C`，应用程序会使用默认配置文件中的值 `default_value_C`。
+
+##### 结论
+
+**配置读取的优先级顺序为：**
+
+1. 环境变量
+2. 命令行参数
+3. 挂载的ConfigMap文件
+4. 默认配置文件
