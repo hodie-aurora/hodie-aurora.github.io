@@ -1370,3 +1370,29 @@ C=default_value_C
 2. 命令行参数
 3. 挂载的ConfigMap文件
 4. 默认配置文件
+
+
+### 110、Traefik的流量进出路径（kubernetes集群）
+
+**流量入口**：
+
+1. 客户端发起请求，该请求通过外部网络（例如互联网）进入Kubernetes集群。
+2. 请求首先到达Traefik，Traefik充当边缘路由器，监听指定的入口点（EntryPoint）（如HTTP或HTTPS端口）。
+3. Traefik根据Ingress资源中定义的路由规则，确定请求应该转发到哪个Service。
+4. 请求通过Kubernetes Service转发到对应的Pod，Service负责将流量负载均衡分发到后端的Pod上。
+
+**流量出口**：
+
+1. Pod处理请求并生成响应。
+2. 响应通过网络层直接返回给发起请求的Traefik实例，绕过Service，利用网络层的NAT机制（源地址转换）。
+3. Traefik接收响应，并将其返回给外部客户端。
+
+#### 流量路径总结
+
+**请求路径**：
+客户端 → Traefik → Kubernetes Service → Pod
+
+**响应路径**：
+Pod → Traefik → 客户端
+
+这种流量路径确保了请求和响应能够快速且高效地在客户端和后端服务之间传输，从而提高了系统的性能和可靠性。
