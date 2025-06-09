@@ -106,7 +106,7 @@ tags:						#标签
   1. Prometheus 是如何部署的？采用了哪些高可用配置？ [[9]](https://www.cnblogs.com/love-DanDan/p/18404489)[[10]](https://www.qikqiak.com/k8strain2/monitor/thanos/)
   2. Thanos 的哪些组件被部署了（如 Sidecar, Querier, Store Gateway, Compactor）？它们各自的作用是什么？ [[22]](https://aws.amazon.com/cn/blogs/china/extending-the-prometheus-high-availability-monitoring-architecture-using-thanos/)[[23]](https://yasongxu.gitbook.io/container-monitor/yi-.-kai-yuan-fang-an/di-2-zhang-prometheus/thanos)
   3. MinIO 是如何作为 Thanos 的长期存储的？存储桶的配置和生命周期管理是怎样的？
-  4. Alertmanager 支持哪些告警渠道？邮件和短信告警是如何配置的？
+  4. Alertmanager 支持哪些告警渠道？邮件和短信告警是如何配置的？告警的原理是什么？
   5. 平台预定义了哪些关键的告警规则？用户是否可以自定义告警规则？
   6. Vue3 仪表盘上展示了哪些核心的集群健康指标？
   7. 应用健康状态是如何定义的？通过哪些指标来衡量？
