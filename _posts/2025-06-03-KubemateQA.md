@@ -353,35 +353,3 @@ tags:						#标签
   3. 分布式训练的配置和调试往往比较困难，尤其是在涉及多机多卡、网络通信优化等问题时。Kubemate 在简化分布式训练的门槛方面做了哪些工作？
   4. KFServing (KServe) 支持 Serverless 推理和模型自动伸缩，但在冷启动或流量突增时可能存在延迟。对于有严格延迟要求的在线推理服务，Kubemate 和 KFServing 是如何优化的？
   5. Katib 进行超参数搜索可能非常耗时和消耗计算资源。Kubemate 是否提供了优化搜索空间、提前终止无效试验或结合更智能搜索策略（如贝叶斯优化）的功能来提高效率？
-
----
-
-**模块10：GPU 调度与加速**
-
-* **普通问题 (20)**
-  1. NVIDIA GPU Operator 是如何安装和配置到 Kubernetes 集群中的？
-  2. 它包含哪些组件？（如 NFD-Operator, GPU Feature Discovery, Device Plugin, DCGM Exporter）它们各自的作用是什么？
-  3. Kubernetes 是如何通过 NVIDIA Device Plugin 发现和暴露 GPU 资源的？
-  4. 用户在提交 AI 工作负载（如训练、推理 Pod）时，如何请求 GPU 资源？（在 Pod Spec 中如何定义）
-  5. 平台是否支持 GPU 共享（如 MIG - Multi-Instance GPU, 或 vGPU）？如果支持，是如何实现的？
-  6. Prometheus 是如何监控 GPU 使用率、显存使用率、温度等指标的？（通过 DCGM Exporter？）
-  7. Kubemate 仪表盘上是否展示了 GPU 相关的监控信息？
-  8. GPU 资源的动态调度策略是怎样的？基于哪些因素进行决策？
-  9. 如何确保 GPU 资源在不同租户或用户间的公平分配？是否支持配额管理？
-  10. 当 GPU 节点发生故障时，依赖 GPU 的工作负载会如何处理？是否支持自动迁移或重调度？
-  11. NVIDIA GPU Operator 是否会自动处理 NVIDIA驱动、CUDA Toolkit 的安装和版本匹配问题？
-  12. 除了 NVIDIA GPU，平台是否考虑支持其他品牌的 AI 加速硬件？
-  13. GPU 资源的分配粒度是怎样的？（例如整卡分配、按显存分配）
-  14. 如何优化 GPU 资源的分配效率，避免资源浪费？
-  15. 对于需要特定 CUDA 版本的应用，平台是如何管理的？
-  16. Kubeflow 或 Ollama 等 AI 组件是如何与 NVIDIA GPU Operator 协同工作的？
-  17. 是否支持对 GPU 进行健康检查和故障诊断？
-  18. 在 GPU 资源紧张时，是否有排队或优先级机制？
-  19. 用户能否查看当前集群中 GPU 资源的总体情况和分配详情？
-  20. 更新 NVIDIA 驱动或 GPU Operator 版本时，对正在运行的 GPU 应用有何影响？如何平滑升级？
-* **刁钻问题 (5)**
-  1. NVIDIA GPU Operator 简化了 GPU 在 Kubernetes 中的使用，但其本身也是一组运行在集群中的组件。如果 GPU Operator 自身出现故障，会对 GPU 资源的调度和监控产生什么影响？如何排查和恢复？
-  2. 在多租户共享 GPU 集群的场景下，如何精确地计量和限制单个租户或任务的 GPU 使用量（尤其是当使用 GPU 共享技术如 MIG 时），以实现公平计费或成本分摊？
-  3. 对于需要特定拓扑结构（如 NVLink 连接）的分布式训练任务，Kubernetes 和 GPU Operator 如何感知并满足这种调度需求，以保证训练性能？
-  4. 当 GPU 卡的型号、架构（如 Ampere, Hopper）在集群中混合存在时，GPU Operator 和 Kubernetes Scheduler 如何确保工作负载被调度到合适的 GPU 类型上？
-  5. 除了资源调度，GPU 的功耗和散热也是数据中心关注的问题。Kubemate 或集成的监控系统是否考虑了对 GPU 功耗的监控和优化策略？
