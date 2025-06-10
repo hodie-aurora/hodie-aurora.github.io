@@ -103,32 +103,51 @@ tags:						#标签
 **模块2：监控与告警**
 
 * **普通问题 (20)**
-  1. Prometheus 是如何部署的？采用了哪些高可用配置？ [[9]](https://www.cnblogs.com/love-DanDan/p/18404489)[[10]](https://www.qikqiak.com/k8strain2/monitor/thanos/)
-  2. Thanos 的哪些组件被部署了（如 Sidecar, Querier, Store Gateway, Compactor）？它们各自的作用是什么？ [[22]](https://aws.amazon.com/cn/blogs/china/extending-the-prometheus-high-availability-monitoring-architecture-using-thanos/)[[23]](https://yasongxu.gitbook.io/container-monitor/yi-.-kai-yuan-fang-an/di-2-zhang-prometheus/thanos)
-  3. MinIO 是如何作为 Thanos 的长期存储的？存储桶的配置和生命周期管理是怎样的？
-  4. Alertmanager 支持哪些告警渠道？邮件和短信告警是如何配置的？告警的原理是什么？
-  5. 平台预定义了哪些关键的告警规则？用户是否可以自定义告警规则？
-  6. Vue3 仪表盘上展示了哪些核心的集群健康指标？
-  7. 应用健康状态是如何定义的？通过哪些指标来衡量？
-  8. 资源使用率（CPU, 内存, 网络, 磁盘）是如何在仪表盘上展示的？
-  9. 应用性能指标（如 QPS, 延迟, 错误率）是如何采集和展示的？
-  10. Prometheus 的抓取配置 (scrape configs) 是如何管理的？是否支持动态更新？
-  11. Thanos Querier 是如何实现跨集群指标查询的？ [[23]](https://yasongxu.gitbook.io/container-monitor/yi-.-kai-yuan-fang-an/di-2-zhang-prometheus/thanos)
-  12. 告警的抑制 (Silencing) 和去重 (Deduplication) 是如何通过 Alertmanager 实现的？ [[9]](https://www.cnblogs.com/love-DanDan/p/18404489)
-  13. 监控数据的保留策略是怎样的？短期和长期数据如何区分存储？
-  14. 用户如何通过仪表盘下钻 (drill down) 查看特定应用或组件的详细监控数据？
-  15. 是否监控 Kubernetes 控制平面组件（API Server, Scheduler, Controller Manager, etcd）的健康状况？ [[24]](https://www.simplilearn.com/tutorials/kubernetes-tutorial/kubernetes-interview-questions)
-  16. 监控系统本身的健康状况是如何监控的（"meta-monitoring"）？
-  17. Grafana 是否也作为仪表盘方案的一部分？如果是，它与 Vue3 仪表盘是如何分工的？
-  18. 针对自定义应用，用户如何方便地接入 Kubemate 的监控体系？
-  19. 告警通知中包含哪些关键信息，以帮助用户快速定位问题？
-  20. 监控数据的查询性能如何？特别是在查询大范围时间序列数据时。
+
+第一部分：Prometheus 和 Thanos
+
+1. Prometheus 是如何部署的？采用了哪些高可用配置？
+2. Thanos 的哪些组件被部署了（如 Sidecar, Querier, Store Gateway, Compactor）？它们各自的作用是什么？具体是如何部署的（不要提供代码）？
+3. MinIO 是如何作为 Thanos 的长期存储的？存储桶的配置和生命周期管理是怎样的？
+4. Prometheus 的抓取配置 (scrape configs) 是如何管理的？是否支持动态更新？
+5. 监控数据的查询性能如何？特别是在查询大范围时间序列数据时，Thanos 的降采样（down-sampling）是如何帮助提升性能的？
+6. 你们是如何管理 Prometheus 指标的基数（Cardinality）问题的？有没有遇到过高基数带来的性能问题，又是如何解决的？
+7. Thanos Querier 是如何对来自两个 Prometheus 副本的数据进行去重的？这个机制的原理是什么？
+8. 你们为 Prometheus 和 Thanos 的各个组件设置了怎样的资源请求（requests）和限制（limits）？在资源规划上有什么考量？
+
+第二部分：Prometheus 和 Alertmanager
+
+1. Alertmanager 支持哪些告警渠道？邮件和短信告警是如何配置的？告警的原理是什么？
+2. 平台预定义了哪些关键的告警规则？用户是否可以自定义告警规则？如果可以，是如何实现的？
+3. 告警的抑制 (Silencing) 和去重 (Deduplication) 是如何通过 Alertmanager 实现的？请举例说明。
+4. 告警通知中包含哪些关键信息，以帮助用户快速定位问题？模板是如何定制的？
+5. 请描述一个告警从 Prometheus 触发到通过 Alertmanager 发送到用户手中的完整生命周期。
+6. 你们如何处理告警风暴（Alert Storm）和告警抖动（Flapping）的问题？
+7. Alertmanager 的路由（routing）规则是如何配置的？能否举一个例子，比如将不同严重程度或不同业务线的告警发送给不同的人？
+
+第三部分：其他
+
+1. 应用健康状态是如何定义的？通过哪些指标来衡量？
+2. 用户如何通过仪表盘下钻 (drill down) 查看特定应用或组件的详细监控数据？
+3. 是否监控 Kubernetes 控制平面组件（API Server, Scheduler, Controller Manager, etcd）的健康状况？主要关注哪些指标？
+4. 应用性能指标（如 QPS, 延迟, 错误率）是如何采集和展示的？这部分是基于 OpenTelemetry 吗？
+5. 监控系统本身的健康状况是如何监控的（"meta-monitoring"）？比如 Prometheus 自身是否健康，Thanos 组件是否正常工作。
+
 * **刁钻问题 (5)**
-  1. 当监控数据量巨大时，Thanos Compactor 和 Store Gateway 的性能瓶颈可能出现在哪里？有哪些优化策略？ [[23]](https://yasongxu.gitbook.io/container-monitor/yi-.-kai-yuan-fang-an/di-2-zhang-prometheus/thanos)
-  2. 如何处理 Prometheus 实例间的抓取目标冲突或重复抓取问题，尤其是在多集群联邦查询的场景下？
-  3. Alertmanager 的高可用集群是如何保证在网络分区或节点故障情况下，告警状态的一致性和不丢失、不重复发送告警的？ [[9]](https://www.cnblogs.com/love-DanDan/p/18404489)
-  4. 对于需要非常低延迟的告警（例如，交易系统中的关键故障），当前的监控架构能否满足？如果不能，有哪些改进方向？
-  5. 在金融等对数据准确性要求极高的场景，Prometheus Pull 模式可能存在的微小数据延迟或不一致，是否会构成问题？如何缓解？ [[23]](https://yasongxu.gitbook.io/container-monitor/yi-.-kai-yuan-fang-an/di-2-zhang-prometheus/thanos)
+
+第一部分：Prometheus 和 Thanos
+
+1. 当监控数据量巨大时，Thanos Compactor 和 Store Gateway 的性能瓶瓶颈可能出现在哪里？有哪些优化策略？
+2. 如何处理 Prometheus 实例间的抓取目标冲突或重复抓取问题，尤其是在多集群联邦查询的场景下？
+3. 在金融等对数据准确性要求极高的场景，Prometheus Pull 模式可能存在的微小数据延迟或因目标实例宕机导致的抓取失败（数据丢失），是否会构成问题？你们是如何缓解或应对这种风险的？
+
+第二部分：Prometheus 和 Alertmanager
+
+4. Alertmanager 的高可用集群是如何保证在网络分区（Network Partition）或节点故障情况下，告警状态（如 silences, notifications）的一致性，以及如何确保不丢失、不重复发送告警的？
+
+第三部分：其他
+
+5. 对于需要非常低延迟的告警（例如，几秒内必须响应的交易系统关键故障），当前的 Prometheus -> Alertmanager 架构能否满足？如果不能，有哪些改进方向或替代方案可以考虑？
 
 ---
 
