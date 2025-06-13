@@ -28,14 +28,14 @@ tags:						#标签
 
 #### **二、数据采集与处理 (在节点和中心 OTEL Collector 中完成)**
 
-1.  **节点采集 (DaemonSet Collector)**：部署在每个 K8s 节点上的 **OTEL Collector (Agent 模式)** 负责接收来自本节点所有 Pod 的 Span 数据，并可附加 `k8s.node.name` 等元数据。
-2.  **中心化聚合 (Deployment Collector)**：节点 Collector 随即将数据转发到一组中心化的、高可用的 **OTEL Collector (Gateway 模式)**，进行集中处理。
-3.  **数据处理流水线 (Processors)**：在 Gateway Collector 中，Span 数据会流经一条强大的处理流水线：
-    *   **`memory_limiter`**：防止 Collector 因数据洪峰而内存溢出。
-    *   **`batch`**：将零散的 Span 打包成批次，提升网络和写入效率。
-    *   **`attributes`**：统一添加、修改或删除 Span 的属性（如添加环境标签 `env="prod"` 或脱敏）。
-    *   **`spanmetrics`**：根据 Span 数据实时生成 Prometheus 指标（RED 指标：请求数、错误数、延迟），用于监控告警。
-    *   **`tail_sampling`**：执行核心的 **尾部采样**。等待一个 Trace 的所有 Span 到达后，再根据规则（如：有错误的、高延迟的、或包含特定业务标签的 Trace）决定是保留还是丢弃整个 Trace。
+1. **节点采集 (DaemonSet Collector)**：部署在每个 K8s 节点上的 **OTEL Collector (Agent 模式)** 负责接收来自本节点所有 Pod 的 Span 数据，并可附加 `k8s.node.name` 等元数据。
+2. **中心化聚合 (Deployment Collector)**：节点 Collector 随即将数据转发到一组中心化的、高可用的 **OTEL Collector (Gateway 模式)**，进行集中处理。
+3. **数据处理流水线 (Processors)**：在 Gateway Collector 中，Span 数据会流经一条强大的处理流水线：
+   * **`memory_limiter`**：防止 Collector 因数据洪峰而内存溢出。
+   * **`batch`**：将零散的 Span 打包成批次，提升网络和写入效率。
+   * **`attributes`**：统一添加、修改或删除 Span 的属性（如添加环境标签 `env="prod"` 或脱敏）。
+   * **`spanmetrics`**：根据 Span 数据实时生成 Prometheus 指标（RED 指标：请求数、错误数、延迟），用于监控告警。
+   * **`tail_sampling`**：执行核心的 **尾部采样**。等待一个 Trace 的所有 Span 到达后，再根据规则（如：有错误的、高延迟的、或包含特定业务标签的 Trace）决定是保留还是丢弃整个 Trace。
 
 #### **三、数据传输与入库 (从 OTEL Collector 到 Jaeger)**
 
@@ -66,15 +66,13 @@ tags:						#标签
 
 #### **一、Trace 生成与上下文注入 (在应用 Pod 中由 SkyWalking Agent 完成)**
 
-1.  **请求入口与 Trace 初始化**：一个外部请求到达集群。与 OTEL 类似，`trace_id` 应该在链路的最前端生成。这可以由支持 SkyWalking 协议的网关插件完成，或者由第一个接触到请求的微服务 Agent 完成。
-    *   **生成 Trace ID**：当请求到达第一个 Java 微服务（`order-service`）时，其 **SkyWalking Java Agent** 会检查请求头。如果不存在 SkyWalking 的追踪上下文，它会**生成一个新的 `trace_id`** 并创建 **根 Span (Root Span)**。
-    *   **上下文传播**：当 `order-service` 通过 gRPC 调用 `inventory-service` 时，SkyWalking Agent 会自动将当前追踪上下文**注入 (Inject)** 到 gRPC 的元数据中。这个过程对开发者完全透明。
+1. **请求入口与 Trace 初始化**：一个外部请求到达集群。与 OTEL 类似，`trace_id` 应该在链路的最前端生成。这可以由支持 SkyWalking 协议的网关插件完成，或者由第一个接触到请求的微服务 Agent 完成。
 
-2.  **跨服务关联**：`inventory-service` 的 SkyWalking Agent 会自动从 gRPC 元数据中 **提取 (Extract)** 上下文，并创建新的子 Span（SkyWalking 中称为 **Entry Span**），并与上游 Span 关联，从而构建出完整的服务调用链。
-
-3.  **手动埋点增强 (可选)**：开发者可以通过 **SkyWalking's Application Toolkit (OAP-APIs)** 手动创建子 Span（**Local Span**），并使用 `@Tag` 注解添加业务标签。
-
-4.  **数据上报**：SkyWalking Agent 会将采集到的追踪片段（Segments）、JVM 指标、服务拓扑关系等数据，通过 **gRPC 协议**，直接上报给 SkyWalking 的后端 OAP Server。
+   * **生成 Trace ID**：当请求到达第一个 Java 微服务（`order-service`）时，其 **SkyWalking Java Agent** 会检查请求头。如果不存在 SkyWalking 的追踪上下文，它会**生成一个新的 `trace_id`** 并创建 **根 Span (Root Span)**。
+   * **上下文传播**：当 `order-service` 通过 gRPC 调用 `inventory-service` 时，SkyWalking Agent 会自动将当前追踪上下文**注入 (Inject)** 到 gRPC 的元数据中。这个过程对开发者完全透明。
+2. **跨服务关联**：`inventory-service` 的 SkyWalking Agent 会自动从 gRPC 元数据中 **提取 (Extract)** 上下文，并创建新的子 Span（SkyWalking 中称为 **Entry Span**），并与上游 Span 关联，从而构建出完整的服务调用链。
+3. **手动埋点增强 (可选)**：开发者可以通过 **SkyWalking's Application Toolkit (OAP-APIs)** 手动创建子 Span（**Local Span**），并使用 `@Tag` 注解添加业务标签。
+4. **数据上报**：SkyWalking Agent 会将采集到的追踪片段（Segments）、JVM 指标、服务拓扑关系等数据，通过 **gRPC 协议**，直接上报给 SkyWalking 的后端 OAP Server。
 
 #### **二、数据接收与分析 (在 SkyWalking OAP Server 中完成)**
 
