@@ -13,10 +13,10 @@ tags:						#标签
 
 #### **一、Trace 生成与上下文注入 (在应用 Pod 中由 OTEL Agent/SDK 完成)**
 
-1. **请求入口与 Trace 初始化**：一个外部请求到达集群入口网关（如 Traefik）。
+1. **请求入口与 Trace_id 初始化**：一个请求到达集群网关（ Traefik）。
 
-   * **生成 Trace ID**：网关的追踪中间件会检查 HTTP Header。由于这是链路的起点，它会**生成一个全局唯一的 `trace_id`**，并创建第一个 Span (Root Span)。
-   * **注入上下文**：网关将包含 `trace_id` 的追踪上下文（遵循 W3C Trace Context 标准）注入到请求头中，然后将请求转发给下游的 `order-service`。
+   * **生成 Trace ID**：网关的追踪中间件会检查 HTTP Header。它会**生成一个全局唯一的 `trace_id`**，并创建第一个 Span (Root Span)。
+   * **注入上下文**：网关将包含 `trace_id` 的追踪上下文注入到请求头中，然后将请求转发给下游的 `order-service`。
 2. **自动 instrumentation 与 Span 创建**：请求到达 `order-service`。其 Pod 中注入的 **OpenTelemetry Java Agent** 会自动拦截该请求。
 
    * **提取上下文**：Agent 从请求头中**提取 (Extract)** 追踪上下文，并得知此请求属于哪个 `trace_id`。
@@ -42,7 +42,7 @@ tags:						#标签
 1. **数据导出 (Exporter)** ：经过处理和采样后，被判定为需要保留的 Trace 数据，会通过  **Jaeger Exporter** ，以 gRPC 协议发送给 Jaeger 的后端组件。
 2. **租户识别与路由** ：在导出前，OTEL Collector 可根据 Pod 的 Namespace 等信息，在请求头中动态加入 `X-Scope-OrgID: <tenant_id>`，以支持多租户隔离。
 3. **Jaeger Collector 接收** ：**Jaeger Collector** 组件接收到来自 OTEL Collector 的数据，验证租户信息（如果配置了）。
-4. **持久化存储** ：Jaeger Collector 将 Span 数据批量写入后端的持久化存储中，最常见的选择是 **OpenSearch** 或 Elasticsearch。每个 Span 作为一个独立的 JSON 文档被存储和索引，关键字段如 `traceID`, `serviceName`, `operationName`, `tags` 等都会被索引，以支持高性能的复杂查询。
+4. **持久化存储** ：Jaeger Collector 将 Span 数据批量写入后端的持久化存储中，最常见的选择是 **OpenSearch** 。每个 Span 作为一个独立的 JSON 文档被存储和索引，关键字段如 `traceID`, `serviceName`, `operationName`, `tags` 等都会被索引，以支持高性能的复杂查询。
 
 #### **四、查询与可视化 (用户在 Jaeger UI / Kubemate UI 中查询)**
 
@@ -58,7 +58,7 @@ tags:						#标签
 1. **指标生成** ：在第二步的 OTEL Collector 中，`spanmetrics` 处理器已经从 Trace 数据中派生出了关键的业务和性能指标。
 2. **指标采集** ：**Prometheus** 服务会定期从 OTEL Collector 的 `/metrics` 端点抓取这些指标，或通过 Remote Write 接收。
 3. **告警评估** ：Prometheus 中预设的告警规则（Alerting Rules），例如 `sum(rate(traces_spanmetrics_calls_total{status_code="ERROR"}[5m])) by (service_name) > 5`，被持续评估。
-4. **告警通知** ：一旦规则被触发，Prometheus 会将告警事件发送给  **Alertmanager** 。Alertmanager 负责对告警进行去重、分组、抑制，并最终通过配置好的渠道（如邮件、Slack、钉钉）通知相关人员，形成从问题发生到被感知的完整闭环。
+4. **告警通知** ：一旦规则被触发，Prometheus 会将告警事件发送给  **Alertmanager** 。Alertmanager 负责对告警进行去重、分组、抑制，并最终通过配置好的渠道（如邮件、短信、企业微信）通知相关人员。
 
 ---
 
