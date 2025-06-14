@@ -1,7 +1,7 @@
 ---
 layout:     post   				# 使用的布局（不需要改）
-title:      Kubemate QA04Skywalking            		# 标题 
-subtitle:   Kubemate QA04Skywalking				#副标题
+title:      Kubemate QA04Sky            		# 标题 
+subtitle:   Kubemate QA04Sky				#副标题
 date:       2025-06-03				# 时间
 author:     zhaohaiwen 				# 作者
 header-img: img/post-bg-2025-01-07.jpg		#这篇文章标题背景图片
@@ -11,7 +11,7 @@ tags:						#标签
 ---
 ### **版本一：基于 Jaeger 的链路追踪全流程 (简化版)**
 
-#### **一、Trace 生成与传递** 
+#### **一、Trace 生成与传递**
 
 1. **入口创建 Trace**：一个请求到达集群网关。如果没有 `trace_id` 则为其生成一个，并创建第一个 Span。然后，将包含 `trace_id` 的请求转发给下游服务。
 2. **服务间链路延续**：当请求在服务之间（如 Service A -> Service B）传递时，OpenTelemetry (OTEL) Agent 会自动将 `trace_id` 往下传，并为每个服务创建一个新的子 Span，将它们关联起来，形成一条完整的调用链。
