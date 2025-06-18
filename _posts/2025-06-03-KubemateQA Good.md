@@ -27,7 +27,7 @@ skywalking相关
 
 3.最复杂的模块是哪个？
 
-[监控与告警模块]()
+[监控与告警模块](https://hodie-aurora.github.io/2025/06/03/Kubemate-%E7%9B%91%E6%8E%A7%E4%B8%8E%E5%91%8A%E8%AD%A6%E6%A8%A1%E5%9D%97/)
 
 4.ERP出现过什么问题？
 
@@ -43,6 +43,10 @@ skywalking相关
 
 9.你的技术选型都是怎样决定的？是通过开源社区还是什么？都有哪些方面的考量？
 
-[技术选型]()
+[技术选型](https://hodie-aurora.github.io/2025/06/03/Kubemate-%E6%8A%80%E6%9C%AF%E9%80%89%E5%9E%8B/)
 
 10.CNI等等概念有接触吗？你们用的都是什么？为什么这样选择？有详细了解过吗？
+
+11.什么是pause容器？pause容器起到什么作用？
+
+pause容器是pod内一个最先启动的非常不起眼的容器，用来达到pod内容器之间共享ip、网络、PID、IPC等基础设施的效果，pod重启也不会影响pause容器，和pod生命周期相同。如果整个 Pod 被删除或重新创建（例如修改了 Pod 的 spec 导致重建），pause 容器也会被销毁并重新创建。不过，Kubernetes 的 CNI 插件会确保新创建的 pause 容器继承相同的 IP 地址
