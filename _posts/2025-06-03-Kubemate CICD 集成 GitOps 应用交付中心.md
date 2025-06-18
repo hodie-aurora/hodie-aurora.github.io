@@ -1,7 +1,7 @@
 ---
 layout:     post   				# 使用的布局（不需要改）
-title:      Kubemate 链路追踪 偶发性交易结算数据不一致问题            		# 标题 
-subtitle:   Kubemate 链路追踪 偶发性交易结算数据不一致问题				#副标题
+title:      Kubemate CICD 集成 GitOps 应用交付中心            		# 标题 
+subtitle:   Kubemate CICD 集成 GitOps 应用交付中心				#副标题
 date:       2025-06-03				# 时间
 author:     zhaohaiwen 				# 作者
 header-img: img/post-bg-2025-01-07.jpg		#这篇文章标题背景图片
@@ -21,7 +21,6 @@ tags:						#标签
 * **CD 流程（Argo CD/Flux）** ：GitOps 控制器检测到部署仓库的变化后，会自动“拉取（Pull）”这个变更，并应用到集群中，完成部署。
 
 对应的kubemate页面是：
-
 
 * 提供一个  **GitOps 应用仪表盘** ，内嵌 Argo CD 的管理界面，用户可以直观地看到每个应用的版本、同步状态、健康状况以及与 Git 仓库的差异。
 * 简化应用的部署和回滚操作，用户只需在 Git 上提交或回退一个 commit，所有操作都有清晰的 Git 记录。
