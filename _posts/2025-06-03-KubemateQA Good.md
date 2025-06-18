@@ -17,6 +17,9 @@ loki相关
 
 skywalking相关
 
+[偶发性交易结算数据不一致问题](https://hodie-aurora.github.io/2025/06/03/Kubemate-%E9%93%BE%E8%B7%AF%E8%BF%BD%E8%B8%AA-%E5%81%B6%E5%8F%91%E6%80%A7%E4%BA%A4%E6%98%93%E7%BB%93%E7%AE%97%E6%95%B0%E6%8D%AE%E4%B8%8D%E4%B8%80%E8%87%B4%E9%97%AE%E9%A2%98/)
+
+[因安全策略导致的关键业务链路中断](https://hodie-aurora.github.io/2025/06/03/Kubemate-%E9%93%BE%E8%B7%AF%E8%BF%BD%E8%B8%AA-%E5%9B%A0%E5%AE%89%E5%85%A8%E7%AD%96%E7%95%A5%E5%AF%BC%E8%87%B4%E7%9A%84%E5%85%B3%E9%94%AE%E4%B8%9A%E5%8A%A1%E9%93%BE%E8%B7%AF%E4%B8%AD%E6%96%AD/)
 
 2.哪个模块需要改进？
 
