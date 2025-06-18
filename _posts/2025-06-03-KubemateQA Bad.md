@@ -1,7 +1,7 @@
 ---
 layout:     post   				# 使用的布局（不需要改）
-title:      Kubemate QAQ            		# 标题 
-subtitle:   Kubemate QAQ				#副标题
+title:      Kubemate A Bad            		# 标题 
+subtitle:   Kubemate A Bad				#副标题
 date:       2025-06-03				# 时间
 author:     zhaohaiwen 				# 作者
 header-img: img/post-bg-2025-01-07.jpg		#这篇文章标题背景图片
