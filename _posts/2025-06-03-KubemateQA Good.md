@@ -13,6 +13,12 @@ tags:						#标签
 1.遇到过哪些复杂问题？
 loki相关
 
+高基数标签问题
+https://hodie-aurora.github.io/2025/06/03/Kubemate-Loki-%E9%AB%98%E5%9F%BA%E6%95%B0%E6%A0%87%E7%AD%BE%E9%97%AE%E9%A2%98/
+
+低效LogQL查询问题
+https://hodie-aurora.github.io/2025/06/03/Kubemate-Loki-%E4%BD%8E%E6%95%88LogQL%E6%9F%A5%E8%AF%A2%E9%97%AE%E9%A2%98/
+
 skywalking相关
 
 Prometheus相关
