@@ -35,6 +35,8 @@ skywalking相关
 
 5.为开源社区做出过哪些具体的贡献，能详细讲一讲吗？
 
+也就是说，其实根本原因是querynode这个组件被HPA和operator同时控制的时候升级时HPA和operator会互相干扰，升级流程是，本来有两个deploy，正常情况下deployA为1，deployB为0，正常的升级是把deployB使用最新版本个数调整为1个，等到B正常工作之后再把deployA个数设置为0，但是HPA不允许deployA被设置为0，如果设置为0会自动扩容，我们的解决方案是，在启动HPA时自动设置为OneDeployMode单部署模式，非HPA场景保留TwoDeployMode
+
 6.各个模块都是怎么组成的？为什么各个模块采用目前的方案，这些方案好在哪里？和同等技术横向对比一下？
 
 [技术选型](https://hodie-aurora.github.io/2025/06/03/Kubemate-%E6%8A%80%E6%9C%AF%E9%80%89%E5%9E%8B/)
