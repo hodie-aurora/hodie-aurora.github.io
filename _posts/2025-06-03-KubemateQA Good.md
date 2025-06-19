@@ -11,6 +11,8 @@ tags:						#标签
 ---
 0.模块速记
 
+[模块速记](https://hodie-aurora.github.io/2025/06/18/Kubemate-%E6%A8%A1%E5%9D%97%E9%80%9F%E8%AE%B0/)
+
 1.遇到过哪些复杂问题？
 
 loki相关

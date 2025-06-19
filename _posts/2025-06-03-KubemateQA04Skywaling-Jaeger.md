@@ -9,7 +9,7 @@ catalog: true 					# 是否归档
 tags:						#标签
     - Kubemate
 ---
-### **版本一：基于 Jaeger 的链路追踪全流程            XXX由于引入linkerd需要修改**
+### **版本一：基于 Jaeger 的链路追踪全流程**
 
 #### **一、Trace 生成与上下文注入 (在应用 Pod 中由 OTEL Agent/SDK 完成)**
 
