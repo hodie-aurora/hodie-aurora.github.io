@@ -9,6 +9,8 @@ catalog: true 					# 是否归档
 tags:						#标签
     - Kubemate
 ---
+0.模块速记
+
 1.遇到过哪些复杂问题？
 
 loki相关
