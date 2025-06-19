@@ -69,3 +69,76 @@ OTel 在启动时最大的开销来自  **Java Agent 对大量类进行扫描和
 10.什么是pause容器？pause容器起到什么作用？
 
 pause 容器是 Pod 内一个最先启动的非常不起眼的容器，用来达到 Pod 内容器之间共享 IP、网络、PID、IPC 等基础设施的效果。Pod 内用户容器重启时不会影响 pause 容器（Pod IP 保持不变），且 pause 容器生命周期与 Pod 相同。如果整个 Pod 被删除或重新创建（例如修改了 Pod 的 spec 导致重建），pause 容器也会被销毁并重新创建。默认情况下，新创建的 pause 容器会获得新 IP 地址；但在特定配置下（如使用 StatefulSet 并搭配支持 IP 保留的 CNI 插件，例如 Calico/Cilium/AWS VPC CNI），Kubernetes 可能为新 Pod 分配与旧 Pod 相同的 IP 地址。
+
+11.golang怎么排查堆栈异常？
+
+
+
+12.golang并发模型
+
+[golang并发模型](https://www.yuque.com/aceld/golang/srxd6d)
+
+13.golang垃圾回收算法
+
+[golang垃圾回收算法](https://www.yuque.com/aceld/golang/zhzanb)
+
+14.什么是容器逃逸？怎么阻止容器逃逸？
+
+### 容器逃逸手段速记
+
+1. **运行时漏洞**：利用 Docker/runc 漏洞逃逸。
+2. **特权模式**： `--privileged` 或挂载 `/docker.sock`。
+3. **内核漏洞**：共享内核，提权到宿主机。
+4. **不安全镜像**：恶意镜像执行逃逸代码。
+5. **系统调用**：弱 seccomp，滥用危险调用。
+6. **Kubernetes 配置**：高权限 SA 或 `hostPath`。
+7. **网络攻击**：弱网络策略，访问管理接口。
+
+### 防御速记
+
+1. **最小权限**：禁特权，限权能，非 root。
+2. **强隔离**：用 seccomp、AppArmor、用户命名空间。
+3. **及时更新**：修补运行时、内核、镜像。
+4. **安全镜像**：扫描漏洞，用可信来源。
+5. **监控审计**：Falco 检测，日志分析。
+
+15.kubernetes有哪些组件？起到什么作用？
+
+控制平面 (Control Plane) - 集群大脑
+
+kube-apiserver: 所有组件交互的统一入口，提供 API 服务。
+etcd: 存储整个集群的状态和配置数据的键值数据库。
+kube-scheduler: 负责将新创建的 Pod 分配到最合适的节点上。
+kube-controller-manager: 运行各种控制器，维持集群的期望状态（如副本数、节点状态）。
+
+节点 (Node) - 工作机器
+
+kubelet: 节点上的代理，负责管理 Pod 和容器的生命周期。
+kube-proxy: 维护节点上的网络规则，实现 Service 的服务发现和负载均衡。
+容器运行时 (Container Runtime): 真正运行容器的软件，如 docker 或 containerd。
+
+16.如何打包出非常小的镜像？
+
+多阶段构建：最核心的方法。多阶段构建通过将构建过程拆分为多个阶段，优化了 Docker 镜像的体积、效率和安全性。
+使用最小基础镜像
+
+17.容器如何二次瘦身？
+
+DockerSlim通过静态和动态分析，监控容器应用在运行时真正使用的文件和依赖，基于监控结果，生成一个全新的、只包含必要文件的镜像
+
+18.milvus与es的区别？
+
+
+19.iptables如何配置？iptables如何组成的？
+
+
+20.集群或服务器断网了如何排查？
+
+
+21.SNI是什么？
+
+
+22.向量余弦计算是什么？
+
+
+23.AI基础设施
