@@ -33,13 +33,11 @@ etcd基于其优秀的特点，可广泛的应用于以下场景：
 
 ### 3、什么是Kubernetes
 
-Kubernetes是一个全新的基于容器技术的分布式系统支撑平台。是Google开源的容器集群管理系统（谷歌内部：Borg）。在Docker技术的基础上，为容器化的应用提供部署运行、资源调度、服务发现和动态伸缩等一系列完整功能，提高了大规模容器集群管理的便捷性。并且具有完备的集群管理能力，多层次的安全防护和准入机制、多租户应用支撑能力、透明的服务注册和发现机制、內建智能负载均衡器、强大的故障发现和自我修复能力、服务滚动升级和在线扩容能力、可扩展的资源自动调度机制以及多粒度的资源配额管理能力。
+Kubernetes是开源容器编排平台，它提供了自动化部署、自动扩展、管理容器化应用能力。其核心功能包括：服务自动发现、自动负载均衡、自我修复、滚动更新、秘密与配置管理，根据流量自动伸缩、支持多云与混合环境。
 
 ### 4、Kubernetes和Docker的关系
 
-Docker提供容器的生命周期管理和Docker镜像构建运行时容器。它的主要优点是将将软件/应用程序运行所需的设置和依赖项打包到一个容器中，从而实现了可移植性等优点。
-
-Kubernetes用于关联和编排在多个主机上运行的容器。
+kubernetes 1.23版本之前使用docker作为容器运行时，在1.23版本开始默认使用containerd作为容器运行时
 
 ### 5、Minikube、Kubectl、Kubelet分别是什么
 
@@ -47,7 +45,7 @@ Minikube是一种可以在本地轻松运行一个单节点Kubernetes群集的�
 
 Kubectl是一个命令行工具，可以使用该工具控制Kubernetes集群管理器，如检查群集资源，创建、删除和更新组件，查看应用程序。
 
-Kubelet是一个代理服务，它在每个节点上运行，并使从服务器与主服务器通信。
+Kubelet管理 Pod 和容器生命周期
 
 ### 6、Kubernetes常见的部署方式
 
@@ -55,7 +53,6 @@ Kubelet是一个代理服务，它在每个节点上运行，并使从服务器�
 
 - kubeadm，也是推荐的一种部署方式；
 - 二进制；
-- minikube，在本地轻松运行一个单节点Kubernetes群集的工具。
 
 ### 7、Kubernetes如何实现集群管理
 
@@ -66,7 +63,6 @@ Kubelet是一个代理服务，它在每个节点上运行，并使从服务器�
 Kubernetes作为一个完备的分布式系统支撑平台，其主要优势：
 
 - 容器编排
-- 轻量级
 - 开源
 - 弹性伸缩
 - 负载均衡
@@ -86,26 +82,14 @@ Kubernetes相关特点：
 
 ### 9、Kubernetes的缺点或当前的不足之处
 
-Kubernetes当前存在的缺点（不足）如下：
-
-- 安装过程和配置相对困难复杂。
-- 管理服务相对繁琐。
-- 运行和编译需要很多时间。
-- 它比其他替代品更昂贵。
-- 对于简单的应用程序来说，可能不需要涉及Kubernetes即可满足。
-
-### 10、Kubernetes相关基础概念
-
-- Master：Kubernetes集群的管理节点，负责管理集群，提供集群的资源数据访问入口。拥有etcd存储服务（可选），运行Api Server进程，Controller Manager服务进程及Scheduler服务进程。
-- Node（worker）：Node（worker）是Kubernetes集群架构中运行Pod的服务节点，是Kubernetes集群操作的单元，用来承载被分配Pod的运行，是Pod运行的宿主机。运行Docker Eninge服务，守护进程kunelet及负载均衡器kube-proxy。
-- Pod：运行于Node节点上，若干相关容器的组合。Pod内包含的容器运行在同一宿主机上，使用相同的网络命名空间、IP地址和端口，能够通过localhost进行通信。Pod是Kubernetes进行创建、调度和管理的最小单位，它提供了比容器更高层次的抽象，使得部署和管理更加灵活。一个Pod可以包含一个容器或者多个相关容器。
-- Label：Kubernetes中的Label实质是一系列的Key/Value键值对，其中key与value可自定义。Label可以附加到各种资源对象上，如Node、Pod、Service、RC等。一个资源对象可以定义任意数量的Label，同一个Label也可以被添加到任意数量的资源对象上去。Kubernetes通过Label Selector（标签选择器）查询和筛选资源对象。
-- Replication Controller：Replication Controller用来管理Pod的副本，保证集群中存在指定数量的Pod副本。集群中副本的数量大于指定数量，则会停止指定数量之外的多余容器数量。反之，则会启动少于指定数量个数的容器，保证数量不变。Replication Controller是实现弹性伸缩、动态扩容和滚动升级的核心。
-- Deployment：Deployment在内部使用了RS来实现目的，Deployment相当于RC的一次升级，其最大的特色为可以随时获知当前Pod的部署进度。
-- HPA（Horizontal Pod Autoscaler）：Pod的横向自动扩容，也是Kubernetes的一种资源，通过追踪分析RC控制的所有Pod目标的负载变化情况，来确定是否需要针对性的调整Pod副本数量。
-- Service：Service定义了Pod的逻辑集合和访问该集合的策略，是真实服务的抽象。Service提供了一个统一的服务访问入口以及服务代理和发现机制，关联多个相同Label的Pod，用户不需要了解后台Pod是如何运行。
-- Volume：Volume是Pod中能够被多个容器访问的共享目录，Kubernetes中的Volume是定义在Pod上，可以被一个或多个Pod中的容器挂载到某个目录下。
-- Namespace：Namespace用于实现多租户的资源隔离，可将集群内部的资源对象分配到不同的Namespace中，形成逻辑上的不同项目、小组或用户组，便于不同的Namespace在共享使用整个集群的资源的同时还能被分别管理。
+* 学习曲线陡峭
+* 配置复杂繁琐
+* 资源消耗较高
+* 调试故障困难
+* 升级风险大
+* 存储管理弱
+* 安全性需额外配置
+* 小规模场景过重
 
 ### 11、Kubernetes集群相关组件
 
@@ -136,11 +120,15 @@ Replica Set和Replication Controller类似，都是确保在任何给定时间�
 
 ### 14、kube-proxy的作用
 
-kube-proxy运行在所有节点上，它监听apiserver中service和endpoint的变化情况，创建路由规则以提供服务IP和负载均衡功能。简单理解此进程是Service的透明代理兼负载均衡器，其核心功能是将到某个Service的访问请求转发到后端的多个Pod实例上。
+kube-proxy运行在所有节点上，是Service的透明代理和负载均衡器，其核心功能是将到某个Service的访问请求转发到后端的多个Pod实例上。
+
+(举个例子，pod的ip是会变化的，而service的ip则不会变化，当你访问某个service ip时，请求由本地节点的 kube-proxy 拦截请求并负载均衡转发到对应的各个节点的pod)
 
 ### 15、kube-proxy iptables的原理
 
 Kubernetes从1.2版本开始，将iptables作为kube-proxy的默认模式。iptables模式下的kube-proxy不再起到Proxy的作用，其核心功能：通过API Server的Watch接口实时跟踪Service与Endpoint的变更信息，并更新对应的iptables规则，Client的请求流量则通过iptables的NAT机制“直接路由”到目标Pod。
+
+(也就是说，kube-proxy在K8S1.2版本使用的是iptables模式，只写iptables规则，让iptables来处理流量转发的事情，也就是说本地访问server ip的流量被kube-proxy的规则改写为分配到对应pod上的流量)
 
 ### 16、kube-proxy ipvs的原理
 
@@ -149,6 +137,7 @@ IPVS在Kubernetes1.11中升级为GA稳定版。IPVS则专门用于高性能负�
 在IPVS模式下，使用iptables的扩展ipset，而不是直接调用iptables来生成规则链。iptables规则链是一个线性的数据结构，ipset则引入了带索引的数据结构，因此当规则很多时，也可以很高效地查找和匹配。
 
 可以将ipset简单理解为一个IP（段）的集合，这个集合的内容可以是IP地址、IP网段、端口等，iptables可以直接添加规则对这个“可变的集合”进行操作，这样做的好处在于可以大大减少iptables规则的数量，从而减少性能损耗。
+(也就是说，在k8s1.11之后，kube-proxy支持采用IPVS模式，维护ipvs hash表，访问server的流量会根据ipvs hash表的配置访问其他节点上对应的ip实现负载均衡访问pod)
 
 ### 17、kube-proxy ipvs和iptables的异同
 
@@ -175,13 +164,12 @@ iptables与IPVS都是基于Netfilter实现的，但因为定位不同，二者�
 
 ### 20、Kubernetes创建一个Pod的主要流程？
 
-Kubernetes中创建一个Pod涉及多个组件之间联动，主要流程如下：
-
-- 客户端提交Pod的配置信息（可以是yaml文件定义的信息）到kube-apiserver。
-- Apiserver收到指令后，通知给controller-manager创建一个资源对象。
-- Controller-manager通过api-server将Pod的配置信息存储到etcd数据中心中。
-- Kube-scheduler检测到Pod信息会开始调度预选，会先过滤掉不符合Pod资源配置要求的节点，然后开始调度调优，主要是挑选出更适合运行Pod的节点，然后将Pod的资源配置单发送到Node节点上的kubelet组件上。
-- Kubelet根据scheduler发来的资源配置单运行Pod，运行成功后，将Pod的运行信息返回给scheduler，scheduler将返回的Pod运行状况的信息存储到etcd数据中心。
+* **用户提交** ：kubectl apply 提交 Pod YAML 到  **API Server** 。
+* **API 验证** ：API Server 校验权限、格式，存入  **etcd** 。
+* **Scheduler 调度** ：Scheduler 监控未调度 Pod，按策略（资源、亲和性）选择  **Node** ，打上 nodeName。
+* **Kubelet 监听到** ：目标 Node 的 Kubelet 通过 API Server 发现新 Pod。
+* **创建容器** ：Kubelet 调用  **容器运行时** （如 containerd/Docker）拉镜像、启动容器。
+* **状态上报** ：Kubelet 持续上报 Pod 状态 → API Server → etcd，用户见 Running。
 
 ### 21、Kubernetes中Pod的重启策略
 
@@ -240,6 +228,8 @@ init container的运行方式与应用容器不同，它们必须先于应用容
 - 当更新Deployment时，系统创建了一个新的ReplicaSet，并将其副本数量扩展到1，然后将旧ReplicaSet缩减为2。
 - 之后，系统继续按照相同的更新策略对新旧两个ReplicaSet进行逐个调整。
 - 最后，新的ReplicaSet运行了对应个新版本Pod副本，旧的ReplicaSet副本数量则缩减为0。
+
+(也就是说，每个deploy对应一个rs，升级时创建新的rs，新的rs副本扩张到正常，旧rs削减副本至0)
 
 ### 27、Kubernetes deployment升级策略
 
@@ -308,12 +298,6 @@ Kubernetes的镜像下载策略有三种：Always、Never、IFNotPresent。
 - Never：禁止从仓库中下载镜像，也就是说只能使用本地镜像。
 - IfNotPresent：仅当本地没有对应镜像时，才从目标仓库中下载。默认的镜像下载策略是：当镜像标签是latest时，默认策略是Always；当镜像标签是自定义时（也就是标签不是latest），那么默认策略是IfNotPresent。
 
-### 36、Kubernetes的负载均衡器
-
-负载均衡器是暴露服务的最常见和标准方式之一。
-
-根据工作环境使用两种类型的负载均衡器，即内部负载均衡器或外部负载均衡器。内部负载均衡器自动平衡负载并使用所需配置分配容器，而外部负载均衡器将流量从外部负载引导至后端容器。
-
 ### 37、Kubernetes各模块如何与API Server通信
 
 Kubernetes API Server作为集群的核心，负责集群各功能模块之间的通信。集群内的各个功能模块通过API Server将信息存入etcd，当需要获取和操作这些数据时，则通过API Server提供的REST接口（用GET、LIST或WATCH方法）来实现，从而实现各模块之间的信息交互。
@@ -323,6 +307,8 @@ Kubernetes API Server作为集群的核心，负责集群各功能模块之间�
 如kube-controller-manager进程与API Server的交互：kube-controller-manager中的Node Controller模块通过API Server提供的Watch接口实时监控Node的信息，并做相应处理。
 
 如kube-scheduler进程与API Server的交互：Scheduler通过API Server的Watch接口监听到新建Pod副本的信息后，会检索所有符合该Pod要求的Node列表，开始执行Pod调度逻辑，在调度成功后将Pod绑定到目标节点上。
+
+（也就是说所有组件都向api server发送信息，而api server将收到的信息存入etcd，接收方 通过 长连接 访问api sever来接收消息）
 
 ### 38、Kubernetes Scheduler作用及实现原理
 
@@ -602,400 +588,9 @@ K8S是Google公司推出的，它来源于由Google公司内部使用了15年的
 
 另外，容器部署可以将各个服务进行隔离，互不影响，这也是容器的另一个核心概念。
 
-### 72、kubenetes针对pod资源对象的健康监测机制
-
-答：K8s中对于pod资源对象的健康状态检测，提供了三类probe（探针）来执行对pod的健康监测：
-
-1） `livenessProbe`探针
-
-可以根据用户自定义规则来判定pod是否健康，如果livenessProbe探针探测到容器不健康，则kubelet会根据其重启策略来决定是否重启，如果一个容器不包含livenessProbe探针，则kubelet会认为容器的livenessProbe探针的返回值永远成功。
-
-2） `ReadinessProbe`探针
-
-同样是可以根据用户自定义规则来判断pod是否健康，如果探测失败，控制器会将此pod从对应service的endpoint列表中移除，从此不再将任何请求调度到此Pod上，直到下次探测成功。
-
-3） `startupProbe`探针
-
-启动检查机制，应用一些启动缓慢的业务，避免业务长时间启动而被上面两类探针kill掉，这个问题也可以换另一种方式解决，就是定义上面两类探针机制时，初始化时间定义的长一些即可。
-
-每种探测方法能支持以下几个相同的检查参数，用于设置控制检查时间：
-
-- `initialDelaySeconds`：初始第一次探测间隔，用于应用启动的时间，防止应用还没启动而健康检查失败
-- `periodSeconds`：检查间隔，多久执行probe检查，默认为10s；
-- `timeoutSeconds`：检查超时时长，探测应用timeout后为失败；
-- `successThreshold`：成功探测阈值，表示探测多少次为健康正常，默认探测1次。
-
-上面两种探针都支持以下三种探测方法：
-
-1）Exec：通过执行命令的方式来检查服务是否正常，比如使用cat命令查看pod中的某个重要配置文件是否存在，若存在，则表示pod健康。反之异常。
-
-Exec探测方式的yaml文件语法如下：
-
-```yaml
-spec:
-  containers:
-  - name: liveness
-    image: k8s.gcr.io/busybox
-    args:
-    - /bin/sh
-    - -c
-    - touch /tmp/healthy; sleep 30; rm -rf /tmp/healthy; sleep 600
-    livenessProbe:         #选择livenessProbe的探测机制
-      exec:                      #执行以下命令
-        command:
-        - cat
-        - /tmp/healthy
-      initialDelaySeconds: 5          #在容器运行五秒后开始探测
-      periodSeconds: 5               #每次探测的时间间隔为5秒
-```
-
-在上面的配置文件中，探测机制为在容器运行5秒后，每隔五秒探测一次，如果cat命令返回的值为“0”，则表示健康，如果为非0，则表示异常。
-
-2）Httpget：通过发送http/htps请求检查服务是否正常，返回的状态码为200-399则表示容器健康（注http get类似于命令 `curl -I`）。
-
-Httpget探测方式的yaml文件语法如下：
-
-```yaml
-spec:
-  containers:
-  - name: liveness
-    image: k8s.gcr.io/liveness
-    livenessProbe:              #采用livenessProbe机制探测
-      httpGet:                  #采用httpget的方式
-    scheme:HTTP         #指定协议，也支持https
-        path: /healthz          #检测是否可以访问到网页根目录下的healthz网页文件
-        port: 8080              #监听端口是8080
-      initialDelaySeconds: 3     #容器运行3秒后开始探测
-      periodSeconds: 3                #探测频率为3秒
-```
-
-上述配置文件中，探测方式为项容器发送HTTP GET请求，请求的是8080端口下的healthz文件，返回任何大于或等于200且小于400的状态码表示成功。任何其他代码表示异常。
-
-3）tcpSocket：通过容器的IP和Port执行TCP检查，如果能够建立TCP连接，则表明容器健康，这种方式与HTTPget的探测机制有些类似，tcpsocket健康检查适用于TCP业务。
-
-tcpSocket探测方式的yaml文件语法如下：
-
-```yaml
-spec:
-  containers:
-  - name: goproxy
-    image: k8s.gcr.io/goproxy:0.1
-    ports:
-- containerPort: 8080
-#这里两种探测机制都用上了，都是为了和容器的8080端口建立TCP连接
-    readinessProbe:
-      tcpSocket:
-        port: 8080
-      initialDelaySeconds: 5
-      periodSeconds: 10
-    livenessProbe:
-      tcpSocket:
-        port: 8080
-      initialDelaySeconds: 15
-      periodSeconds: 20
-```
-
-在上述的yaml配置文件中，两类探针都使用了，在容器启动5秒后，kubelet将发送第一个readinessProbe探针，这将连接容器的8080端口，如果探测成功，则该pod为健康，十秒后，kubelet将进行第二次连接。
-
-除了readinessProbe探针外，在容器启动15秒后，kubelet将发送第一个livenessProbe探针，仍然尝试连接容器的8080端口，如果连接失败，则重启容器。
-
-探针探测的结果无外乎以下三者之一：
-
-- Success：Container通过了检查；
-- Failure：Container没有通过检查；
-- Unknown：没有执行检查，因此不采取任何措施（通常是我们没有定义探针检测，默认为成功）。
-
-若觉得上面还不够透彻，可以移步其官网文档：
-
-https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
-
-### 73、如何控制滚动更新过程
-
-答：可以通过下面的命令查看到更新时可以控制的参数：
-
-```bash
-[root@master yaml]# kubectl explain deploy.spec.strategy.rollingUpdate
-```
-
-`maxSurge`： 此参数控制滚动更新过程，副本总数超过预期pod数量的上限。可以是百分比，也可以是具体的值。默认为1。
-
-（上述参数的作用就是在更新过程中，值若为3，那么不管三七二一，先运行三个pod，用于替换旧的pod，以此类推）
-
-`maxUnavailable`：此参数控制滚动更新过程中，不可用的Pod的数量。
-
-（这个值和上面的值没有任何关系，举个例子：我有十个pod，但是在更新的过程中，我允许这十个pod中最多有三个不可用，那么就将这个参数的值设置为3，在更新的过程中，只要不可用的pod数量小于或等于3，那么更新过程就不会停止）。
-
-### 74、K8s中镜像的下载策略是什么
-
-答：可通过命令“kubectl explain pod.spec.containers”来查看imagePullPolicy这行的解释。
-
-K8s的镜像下载策略有三种：Always、Never、IFNotPresent；
-
-- Always：镜像标签为latest时，总是从指定的仓库中获取镜像；
-- Never：禁止从仓库中下载镜像，也就是说只能使用本地镜像；
-- IfNotPresent：仅当本地没有对应镜像时，才从目标仓库中下载。
-- 默认的镜像下载策略是：当镜像标签是latest时，默认策略是Always；当镜像标签是自定义时（也就是标签不是latest），那么默认策略是IfNotPresent。
-
-### 75、image的状态有哪些
-
-- Running：Pod所需的容器已经被成功调度到某个节点，且已经成功运行，
-- Pending：APIserver创建了pod资源对象，并且已经存入etcd中，但它尚未被调度完成或者仍然处于仓库中下载镜像的过程
-- Unknown：APIserver无法正常获取到pod对象的状态，通常是其无法与所在工作节点的kubelet通信所致。
-
-### 76、pod的重启策略是什么？
-
-答：可以通过命令“kubectl explain pod.spec”查看pod的重启策略。（restartPolicy字段）
-
-- Always：但凡pod对象终止就重启，此为默认策略。
-- OnFailure：仅在pod对象出现错误时才重启
-
-### 77、Service这种资源对象的作用是什么？
-
-答：用来给相同的多个pod对象提供一个固定的统一访问接口，常用于服务发现和服务访问。
-
-### 78、版本回滚相关的命令？
-
-```bash
-[root@master httpd-web]# kubectl apply -f httpd2-deploy1.yaml  --record  
-#运行yaml文件，并记录版本信息；
-[root@master httpd-web]# kubectl rollout history deployment httpd-devploy1  
-#查看该deployment的历史版本
-[root@master httpd-web]# kubectl rollout undo deployment httpd-devploy1 --to-revision=1  
-#执行回滚操作，指定回滚到版本1
-#在yaml文件的spec字段中，可以写以下选项（用于限制最多记录多少个历史版本）：
-spec:
-  revisionHistoryLimit: 5  
-#这个字段通过 kubectl explain deploy.spec  命令找到revisionHistoryLimit   <integer>行获得
-```
-
-### 79、标签与标签选择器的作用是什么？
-
-标签：是当相同类型的资源对象越来越多的时候，为了更好的管理，可以按照标签将其分为一个组，为的是提升资源对象的管理效率。
-
-标签选择器：就是标签的查询过滤条件。目前API支持两种标签选择器：
-
-- 基于等值关系的，如：“=”、“”“==”、“！=”（注：“==”也是等于的意思，yaml文件中的matchLabels字段）；
-- 基于集合的，如：in、notin、exists（yaml文件中的matchExpressions字段）；
-
-注：in:在这个集合中；notin：不在这个集合中；exists：要么全在（exists）这个集合中，要么都不在（notexists）；
-
-使用标签选择器的操作逻辑：
-
-- 在使用基于集合的标签选择器同时指定多个选择器之间的逻辑关系为“与”操作（比如：- {key: name,operator: In,values: [zhangsan,lisi]} ，那么只要拥有这两个值的资源，都会被选中）；
-- 使用空值的标签选择器，意味着每个资源对象都被选中（如：标签选择器的键是“A”，两个资源对象同时拥有A这个键，但是值不一样，这种情况下，如果使用空值的标签选择器，那么将同时选中这两个资源对象）
-- 空的标签选择器（注意不是上面说的空值，而是空的，都没有定义键的名称），将无法选择出任何资源；
-
-在基于集合的选择器中，使用“In”或者“Notin”操作时，其values可以为空，但是如果为空，这个标签选择器，就没有任何意义了。
-
-两种标签选择器类型（基于等值、基于集合的书写方法）：
-
-```yaml
-selector:
-  matchLabels:           #基于等值
-    app: nginx
-  matchExpressions:         #基于集合
-    - {key: name,operator: In,values: [zhangsan,lisi]}     #key、operator、values这三个字段是固定的
-    - {key: age,operator: Exists,values:}   #如果指定为exists，那么values的值一定要为空
-```
-
-### 80、常用的标签分类有哪些？
-
-标签分类是可以自定义的，但是为了能使他人可以达到一目了然的效果，一般会使用以下一些分类：
-
-- 版本类标签（release）：stable（稳定版）、canary（金丝雀版本，可以将其称之为测试版中的测试版）、beta（测试版）；
-- 环境类标签（environment）：dev（开发）、qa（测试）、production（生产）、op（运维）；
-- 应用类（app）：ui、as、pc、sc；
-- 架构类（tier）：frontend（前端）、backend（后端）、cache（缓存）；
-- 分区标签（partition）：customerA（客户A）、customerB（客户B）；
-- 品控级别（Track）：daily（每天）、weekly（每周）。
-
-### 81、有几种查看标签的方式？
-
-答：常用的有以下三种查看方式：
-
-```bash
-[root@master ~]# kubectl get pod --show-labels    #查看pod，并且显示标签内容
-[root@master ~]# kubectl get pod -L env,tier      #显示资源对象标签的值
-[root@master ~]# kubectl get pod -l env,tier      #只显示符合键值资源对象的pod，而“-L”是显示所有的pod
-```
-
-### 82、添加、修改、删除标签的命令？
-
-```bash
-#对pod标签的操作
-[root@master ~]# kubectl label pod label-pod abc=123     #给名为label-pod的pod添加标签
-[root@master ~]# kubectl label pod label-pod abc=456 --overwrite       #修改名为label-pod的标签
-[root@master ~]# kubectl label pod label-pod abc-             #删除名为label-pod的标签
-[root@master ~]# kubectl get pod --show-labels
- 
-#对node节点的标签操作   
-[root@master ~]# kubectl label nodes node01 disk=ssd      #给节点node01添加disk标签
-[root@master ~]# kubectl label nodes node01 disk=sss –overwrite    #修改节点node01的标签
-[root@master ~]# kubectl label nodes node01 disk-         #删除节点node01的disk标签
-```
-
-### 83、DaemonSet资源对象的特性？
-
-DaemonSet这种资源对象会在每个k8s集群中的节点上运行，并且每个节点只能运行一个pod，这是它和deployment资源对象的最大也是唯一的区别。所以，在其yaml文件中，不支持定义replicas，除此之外，与Deployment、RS等资源对象的写法相同。
-
-它的一般使用场景如下：
-
-- 在去做每个节点的日志收集工作；
-- 监控每个节点的的运行状态；
-
-### 84、说说你对Job这种资源对象的了解？
-
-答：Job与其他服务类容器不同，Job是一种工作类容器（一般用于做一次性任务）。使用常见不多，可以忽略这个问题。
-
-```yaml
-#提高Job执行效率的方法：
-spec:
-  parallelism: 2           #一次运行2个
-  completions: 8           #最多运行8个
-  template:
-metadata:
-```
-
-### 85、描述一下pod的生命周期有哪些状态？
-
-- Pending：表示pod已经被同意创建，正在等待kube-scheduler选择合适的节点创建，一般是在准备镜像；
-- Running：表示pod中所有的容器已经被创建，并且至少有一个容器正在运行或者是正在启动或者是正在重启；
-- Succeeded：表示所有容器已经成功终止，并且不会再启动；
-- Failed：表示pod中所有容器都是非0（不正常）状态退出；
-- Unknown：表示无法读取Pod状态，通常是kube-controller-manager无法与Pod通信。
-
-### 86、创建一个pod的流程是什么？
-
-- 客户端提交Pod的配置信息（可以是yaml文件定义好的信息）到kube-apiserver；
-- Apiserver收到指令后，通知给controller-manager创建一个资源对象；
-- Controller-manager通过api-server将pod的配置信息存储到ETCD数据中心中；
-- Kube-scheduler检测到pod信息会开始调度预选，会先过滤掉不符合Pod资源配置要求的节点，然后开始调度调优，主要是挑选出更适合运行pod的节点，然后将pod的资源配置单发送到node节点上的kubelet组件上。
-- Kubelet根据scheduler发来的资源配置单运行pod，运行成功后，将pod的运行信息返回给scheduler，scheduler将返回的pod运行状况的信息存储到etcd数据中心。
-
-### 87、删除一个Pod会发生什么事情？
-
-答：Kube-apiserver会接受到用户的删除指令，默认有30秒时间等待优雅退出，超过30秒会被标记为死亡状态，此时Pod的状态Terminating，kubelet看到pod标记为Terminating就开始了关闭Pod的工作；
-
-关闭流程如下：
-
-- pod从service的endpoint列表中被移除；
-- 如果该pod定义了一个停止前的钩子，其会在pod内部被调用，停止钩子一般定义了如何优雅的结束进程；
-- 进程被发送TERM信号（kill -14）
-- 当超过优雅退出的时间后，Pod中的所有进程都会被发送SIGKILL信号（kill -9）。
-
-### 88、K8s的Service是什么？
-
-答：Pod每次重启或者重新部署，其IP地址都会产生变化，这使得pod间通信和pod与外部通信变得困难，这时候，就需要Service为pod提供一个固定的入口。
-
-Service的Endpoint列表通常绑定了一组相同配置的pod，通过负载均衡的方式把外界请求分配到多个pod上
-
 ### 89、k8s是怎么进行服务注册的？
 
 答：Pod启动后会加载当前环境所有Service信息，以便不同Pod根据Service名进行通信。
-
-### 90、k8s集群外流量怎么访问Pod？
-
-答：可以通过Service的NodePort方式访问，会在所有节点监听同一个端口，比如：30000，访问节点的流量会被重定向到对应的Service上面。
-
-### 91、k8s数据持久化的方式有哪些？
-
-答：
-
-#### 1）EmptyDir（空目录）：
-
-没有指定要挂载宿主机上的某个目录，直接由Pod内保部映射到宿主机上。类似于docker中的manager volume。
-
-主要使用场景：
-
-- 只需要临时将数据保存在磁盘上，比如在合并/排序算法中；
-- 作为两个容器的共享存储，使得第一个内容管理的容器可以将生成的数据存入其中，同时由同一个webserver容器对外提供这些页面。
-
-emptyDir的特性：
-
-同个pod里面的不同容器，共享同一个持久化目录，当pod节点删除时，volume的数据也会被删除。如果仅仅是容器被销毁，pod还在，则不会影响volume中的数据。
-
-总结来说：emptyDir的数据持久化的生命周期和使用的pod一致。一般是作为临时存储使用。
-
-#### 2）Hostpath：
-
-将宿主机上已存在的目录或文件挂载到容器内部。类似于docker中的bind mount挂载方式。
-
-这种数据持久化方式，运用场景不多，因为它增加了pod与节点之间的耦合。
-
-一般对于k8s集群本身的数据持久化和docker本身的数据持久化会使用这种方式，可以自行参考apiService的yaml文件，位于：/etc/kubernetes/main…目录下。
-
-#### 3）PersistentVolume（简称PV）：
-
-基于NFS服务的PV，也可以基于GFS的PV。它的作用是统一数据持久化目录，方便管理。
-
-在一个PV的yaml文件中，可以对其配置PV的大小，指定PV的访问模式：
-
-- `ReadWriteOnce`：只能以读写的方式挂载到单个节点；
-- `ReadOnlyMany`：能以只读的方式挂载到多个节点；
-- `ReadWriteMany`：能以读写的方式挂载到多个节点。以及指定pv的回收策略：
-- `recycle`：清除PV的数据，然后自动回收；
-- `Retain`：需要手动回收；
-- `delete`：删除云存储资源，云存储专用；
-
-PS：这里的回收策略指的是在PV被删除后，在这个PV下所存储的源文件是否删除）。
-
-若需使用PV，那么还有一个重要的概念：PVC，PVC是向PV申请应用所需的容量大小，K8s集群中可能会有多个PV，PVC和PV若要关联，其定义的访问模式必须一致。定义的storageClassName也必须一致，若群集中存在相同的（名字、访问模式都一致）两个PV，那么PVC会选择向它所需容量接近的PV去申请，或者随机申请。
-
-#### 92、应用挂载存储请求，存储请求挂载存储卷，这些存储卷通常持久化存储哪些信息？
-
-在 Kubernetes 中，持久卷（Persistent Volumes, PVs）通常用于存储应用程序需要持久化的各种数据。具体存储哪些信息取决于应用程序的需求和用途。以下是一些常见的使用场景和持久化存储的信息类型：
-
-1. **数据库数据**：
-
-   - 持久卷通常用于存储数据库的数据文件。例如，MySQL、PostgreSQL、MongoDB 等数据库会将其数据文件存储在持久卷上，以确保数据在数据库容器重启或升级后不会丢失。
-2. **日志文件**：
-
-   - 应用程序生成的日志文件可以存储在持久卷中。这有助于在容器重启或发生故障时保留日志记录，以便进行审计、调试和监控。
-3. **用户上传的文件**：
-
-   - 对于需要处理用户上传文件的应用程序（如图片、视频、文档等），这些文件可以存储在持久卷中，以便在应用程序的不同实例之间共享和持久化。
-4. **配置文件和状态数据**：
-
-   - 某些应用程序需要持久化配置文件、状态数据或其他重要信息。例如，分布式缓存系统可能会将其缓存数据存储在持久卷上。
-5. **中间结果和临时数据**：
-
-   - 某些长时间运行的任务或批处理作业可能需要将中间结果和临时数据存储在持久卷中，以确保在任务完成之前数据不会丢失。
-6. **内容管理系统（CMS）数据**：
-
-   - 内容管理系统（如 WordPress、Joomla 等）通常需要持久化存储其内容、媒体文件和配置数据。
-7. **大数据和分析系统数据**：
-
-   - 大数据和分析系统（如 Hadoop、Spark 等）可能需要持久化存储其数据集、分析结果和配置。
-8. **容器化应用的持久状态**：
-
-   - 某些容器化应用程序需要持久化其状态信息，以便在重新部署或扩展时保留其当前状态。
-
-通过使用持久卷，Kubernetes 能够确保这些数据在容器重启、升级或迁移时不会丢失，从而提供更高的可靠性和数据持久性。
-
-### 93、级联删除的方式？
-
-### 级联删除（Cascading Deletion）
-
-当属主资源被删除时，Kubernetes 可以自动删除所有附属资源，这称为级联删除。级联删除有两种模式：
-
-1. **前景级联删除（Foreground Deletion）** ：
-
-* 属主资源进入删除状态，标记为 "待删除"。
-* Kubernetes 首先删除所有附属资源，然后再删除属主资源。
-* 在这个过程中，属主资源依然存在，但处于删除中状态，直到所有附属资源被删除。
-
-1. **背景级联删除（Background Deletion）** ：
-
-* 属主资源立即被删除。
-* Kubernetes 在后台异步删除所有附属资源。
-* 附属资源的删除操作可能会在属主资源删除之后的一段时间内完成。
-* 
-
-### 94、属主关系与 Finalizer
-
-当你告诉 Kubernetes 删除一个资源，API 服务器允许管理控制器处理该资源的任何 [Finalizer 规则](https://kubernetes.io/zh-cn/docs/concepts/overview/working-with-objects/finalizers/)。 [Finalizer](https://kubernetes.io/zh-cn/docs/concepts/overview/working-with-objects/finalizers/) 防止意外删除你的集群所依赖的、用于正常运作的资源。 例如，如果你试图删除一个仍被 Pod 使用的 `PersistentVolume`，该资源不会被立即删除， 因为 [PersistentVolume](https://kubernetes.io/zh-cn/docs/concepts/storage/persistent-volumes/) 有 `kubernetes.io/pv-protection` Finalizer。 相反，[数据卷](https://kubernetes.io/zh-cn/docs/concepts/storage/volumes/)将进入 `Terminating` 状态， 直到 Kubernetes 清除这个 Finalizer，而这种情况只会发生在 `PersistentVolume` 不再被挂载到 Pod 上时。
-
-当你使用[前台或孤立级联删除](https://kubernetes.io/zh-cn/docs/concepts/architecture/garbage-collection/#cascading-deletion)时， Kubernetes 也会向属主资源添加 Finalizer。 在前台删除中，会添加 `foreground` Finalizer，这样控制器必须在删除了拥有 `ownerReferences.blockOwnerDeletion=true` 的附属资源后，才能删除属主对象。 如果你指定了孤立删除策略，Kubernetes 会添加 `orphan` Finalizer， 这样控制器在删除属主对象后，会忽略附属资源。
 
 ### 95、节点心跳的处理
 
@@ -1020,138 +615,7 @@ Guaranteed：Pod 请求的资源被保证。不会因资源不足被驱逐或杀
 Burstables：Pod 请求的资源在必要时可以扩展。资源紧张时可能被驱逐。
 BestEffort： Pod 没有请求或限制资源。资源使用根据系统资源情况调整，资源紧张时最可能被驱逐。
 
-### 98、什么时候一个deploy会创建多个rs
-
-一个 `Deployment` 可能会在以下几种情况下创建多个 `ReplicaSet`：
-
-**滚动更新** ：
-
-* 当你更新 `Deployment` 的配置（例如更改容器镜像版本、环境变量、资源限制等）时，`Deployment` 会创建一个新的 `ReplicaSet` 来运行新的Pod，同时逐步减少旧 `ReplicaSet` 中的Pod数量，以实现无中断的更新。
-
-**回滚** ：
-
-* 如果你需要回滚到之前的某个版本，`Deployment` 会恢复到之前的配置，这通常会创建一个新的 `ReplicaSet` 来管理被恢复的配置。
-
-**暂停和恢复更新** ：
-
-* 如果你在更新过程中暂停了 `Deployment`，然后进行了一些修改再恢复更新，这也可能导致创建新的 `ReplicaSet`。
-
-**多次连续更新** ：
-
-* 如果在一次更新尚未完成时又进行了新的更新，`Deployment` 可能会同时管理多个 `ReplicaSet`，以处理这些不同版本的Pod。
-
-  ` Deployment` 会在进行配置变更（如滚动更新、回滚、暂停和恢复更新）时创建多个 `ReplicaSet`，以确保应用程序能够稳定运行并且能够追踪和管理不同版本的Pod。
-
-### 99、金丝雀部署和蓝绿部署的区别
-
-金丝雀部署（Canary Deployment）
-
-* **发布方式：** 渐进式，逐步扩大新版本流量。
-* **风险控制：** 风险较低，逐步验证新版本。
-* **资源需求：** 相对较少。
-* **回滚方式：** 简单，将流量重新导向旧版本。
-
-蓝绿部署（Blue-Green Deployment）
-
-* **发布方式：** 切换式，流量从蓝环境切换到绿环境。
-* **风险控制：** 风险较高，一次性切换。
-* **资源需求：** 较多，需要双倍资源。
-* **回滚方式：** 快速，切换回蓝环境。
-
-### 100、什么是k8s中的无头服务
-
-无头服务（Headless Service）在 Kubernetes 中确实是一种常见的模式，尤其是在需要直接 Pod 间通信的场景中。以下是一些无头服务的常见用途和应用场景：
-
-常见用途
-
-1. **直接 Pod 间通信**：
-
-   - 当一组 Pod 需要直接相互通信时，无头服务可以让这些 Pod 直接通过它们的 IP 地址进行通信，而不需要通过一个中心化的服务来路由请求。
-2. **多实例应用**：
-
-   - 如果你有一个多实例的应用程序，每个实例都需要与其他实例直接通信，无头服务可以提供这种直接的通信机制。
-3. **分布式系统**：
-
-   - 在分布式系统中，例如数据库集群（如 MySQL 或 Redis 集群），每个节点需要直接与其他节点通信。无头服务可以提供这种直接的通信能力。
-
-具体应用场景
-
-1. **分布式数据库**：
-
-   - 例如，一个 Redis 集群中的各个节点需要直接通信以实现数据复制和一致性检查。无头服务可以为这些节点提供直接的通信机制。
-2. **状态ful服务**：
-
-   - 对于需要持久化状态的服务，如数据库或缓存服务，无头服务可以确保每个实例可以直接访问其他实例，从而更好地管理和维护状态。
-3. **微服务架构**：
-
-   - 在微服务架构中，某些服务可能需要直接与其他服务通信，而不是通过负载均衡器。无头服务可以提供这种直接通信的能力。
-4. **服务发现**：
-
-   - 无头服务可以用于服务发现，每个 Pod 可以通过 DNS 解析到其他 Pod 的 IP 地址，从而实现直接通信。
-
-实现方式
-
-在 Kubernetes 中，创建一个无头服务非常简单。你只需要在 `Service` 的定义中设置 `clusterIP: None` 即可。
-
-通过这种方式，Kubernetes 会为每个带有相同标签（`app: my-app`）的 Pod 分配一个独立的 DNS 名称，这些名称可以通过 DNS 解析到各自的 IP 地址，从而实现直接通信。
-
-总结
-
-无头服务在 Kubernetes 中主要用于需要直接 Pod 间通信的场景，特别是在分布式系统和多实例应用中。它简化了网络流量，并提高了系统的灵活性和效率。
-
 ### 101、什么是树外存储？什么是树内存储？
-
-树内存储（In-tree storage）
-
-树内存储插件是直接内置在 Kubernetes 核心代码中的存储插件。这些插件随着 Kubernetes 的发布一起更新和维护。由于它们是内置的，所以使用起来比较方便，但也有一些限制：
-
-* **更新和维护** ：需要等待 Kubernetes 的新版本发布才能获得更新。
-* **灵活性** ：由于是内置的，可能不支持所有存储系统的特性。
-
-树外存储（Out-of-tree storage）
-
-树外存储插件是通过容器存储接口（Container Storage Interface，CSI）实现的插件。这些插件独立于 Kubernetes 核心代码，可以单独更新和维护。树外存储插件的优点包括：
-
-* **独立更新** ：可以独立于 Kubernetes 版本进行更新和维护。
-* **灵活性** ：支持更多的存储系统和特性。
-
-### 102、promethues的采集和告警架构？
-
-* **数据采集** :
-* cAdvisor和Node Exporter等工具收集节点和容器的监控数据。
-* **数据抓取和存储** :
-* Prometheus定期从这些采集器抓取数据，并将其存储在自身的时间序列数据库中。
-* **告警评估** :
-* Prometheus根据预定义的告警规则评估抓取的数据。如果某些条件被满足，Prometheus会生成相应的告警。
-* **告警推送** :
-* 生成的告警信息被推送到Alertmanager。
-* **告警处理** :
-* Alertmanager根据配置规则处理告警，进行去重、聚合和路由操作。
-* Alertmanager会触发指定的动作，比如发送短信、电子邮件通知管理员，或者通过其它集成工具进行告警处理。
-
-你的理解基本正确，不过我稍微补充一下细节，让你更清楚镜像的构建和存储过程。
-
-### 103、Docker 镜像构建和存储过程
-
-1. **读取 Dockerfile**：
-
-   - Docker 解析 Dockerfile，从上到下逐行读取指令。
-2. **创建镜像层**：
-
-   - 对于每一行命令（如 `RUN`, `COPY`, `ADD`），Docker 会创建一个新的镜像层。
-   - 每一层都是一个增量的文件系统快照，记录相对于前一层的变更。
-   - 这些层实际上存储为 tarball 文件（压缩包），每个层文件名是一个唯一的哈希值，用于标识该层。
-3. **拉取基础镜像**：
-
-   - 如果基础镜像是 `ubuntu`，Docker 会从镜像仓库（如 Docker Hub）拉取 Ubuntu 镜像。这个镜像本身也是由多个层组成的。
-   - 拉取到的基础镜像层也会存储为 tarball 文件，每层的文件名是一个哈希值。
-4. **生成镜像元数据**：
-
-   - Docker 为镜像生成元数据文件，通常是 JSON 格式。这个 JSON 文件包括镜像的配置信息，如环境变量、工作目录、入口点命令等。
-5. **镜像存储**：
-
-   - 最终的镜像由多个层（tarball 文件）和一个元数据 JSON 文件组成。
-   - 这些文件存储在本地或上传到镜像仓库，方便后续使用和分发。
 
 ### 104、容器启动过程
 
@@ -1250,119 +714,7 @@ BestEffort： Pod 没有请求或限制资源。资源使用根据系统资源�
 - **安全性**：提高了内网资源的安全性，防止未经授权的访问和数据泄露。
 - **灵活性**：可以根据具体需求配置细粒度的访问控制策略和审查机制，确保网络安全和合规。
 
-### 108、NAT和NAPT
-
-#### NAT（网络地址转换）
-
-**全称**：Network Address Translation
-
-**功能**：NAT主要用于在数据包通过路由器或防火墙时修改数据包头部的IP地址。它的目的是允许私有网络中的多个设备通过一个公共IP地址访问外部网络，从而解决IPv4地址短缺的问题。
-
-#### NAPT（网络地址端口转换）
-
-**全称**：Network Address Port Translation
-
-**功能**：NAPT是NAT的一种形式，除了转换IP地址外，还包括端口号的转换。这使得多个内部设备可以共享一个公共IP地址，并通过不同的端口号进行区分。NAPT通常被称为PAT（Port Address Translation）。
-
-#### 比较和联系
-
-1. **NAT**：主要处理IP地址的转换，可以是静态或动态的。
-2. **NAPT**：是在NAT的基础上添加了端口号的转换，使得单个公共IP地址可以同时服务多个内部设备。
-
 ### 109、Kubernetes中读取配置的优先级
-
-在现代应用程序开发中，尤其是使用Kubernetes进行部署时，配置管理是一个关键的部分。Kubernetes提供了多种方式来管理和读取应用程序的配置，如ConfigMap、环境变量、命令行参数和默认配置文件。了解这些配置的读取优先级可以帮助开发人员更好地管理和组织应用配置。
-
-##### 配置读取方式
-
-1. **环境变量**
-2. **命令行参数**
-3. **挂载的ConfigMap文件**
-4. **默认配置文件**
-
-##### 配置读取优先级详解
-
-###### 1. 环境变量
-
-环境变量是应用程序读取配置时的最高优先级。通过环境变量，可以直接在Pod的定义中注入配置值。例如：
-
-```yaml
-apiVersion: v1
-kind: Pod
-metadata:
-  name: my-app
-spec:
-  containers:
-  - name: my-container
-    image: my-java-app:latest
-    env:
-    - name: A
-      value: "env_value_A"
-    - name: B
-      value: "env_value_B"
-```
-
-在这种情况下，配置值 `A`和 `B`会被设置为环境变量的值 `env_value_A`和 `env_value_B`。
-
-##### 2. 命令行参数
-
-如果没有通过环境变量提供配置值，应用程序会检查命令行参数。命令行参数的值优先级仅次于环境变量。例如，通过以下命令启动应用：
-
-```bash
-java -jar my-java-app.jar --A=cli_value_A --B=cli_value_B
-```
-
-此时，`A`和 `B`会被设置为命令行参数的值 `cli_value_A`和 `cli_value_B`，前提是环境变量没有覆盖这些值。
-
-##### 3. 挂载的ConfigMap文件
-
-ConfigMap是Kubernetes中一种常用的配置管理方式。可以将ConfigMap中的配置文件挂载到Pod中，应用程序读取挂载的文件中的配置值。例如：
-
-```yaml
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: app-config
-data:
-  application.properties: |
-    A=configmap_value_A
-    B=configmap_value_B
-```
-
-```yaml
-apiVersion: v1
-kind: Pod
-metadata:
-  name: my-app
-spec:
-  containers:
-  - name: my-container
-    image: my-java-app:latest
-    volumeMounts:
-    - name: config-volume
-      mountPath: /config
-  volumes:
-  - name: config-volume
-    configMap:
-      name: app-config
-```
-
-在这种情况下，应用程序会读取挂载的ConfigMap文件中的配置值，如果没有环境变量和命令行参数提供这些值，则 `A`和 `B`会被设置为 `configmap_value_A`和 `configmap_value_B`。
-
-##### 4. 默认配置文件
-
-最后，如果上述所有来源都没有提供某个配置值，应用程序会使用默认配置文件中的值。例如，在默认配置文件 `application.properties`中：
-
-```properties
-# application.properties
-A=default_value_A
-B=default_value_B
-C=default_value_C
-```
-
-此时，如果ConfigMap文件和其他配置来源没有提供 `C`，应用程序会使用默认配置文件中的值 `default_value_C`。
-
-##### 结论
 
 **配置读取的优先级顺序为：**
 
@@ -1370,29 +722,3 @@ C=default_value_C
 2. 命令行参数
 3. 挂载的ConfigMap文件
 4. 默认配置文件
-
-
-### 110、Traefik的流量进出路径（kubernetes集群）
-
-**流量入口**：
-
-1. 客户端发起请求，该请求通过外部网络（例如互联网）进入Kubernetes集群。
-2. 请求首先到达Traefik，Traefik充当边缘路由器，监听指定的入口点（EntryPoint）（如HTTP或HTTPS端口）。
-3. Traefik根据Ingress资源中定义的路由规则，确定请求应该转发到哪个Service。
-4. 请求通过Kubernetes Service转发到对应的Pod，Service负责将流量负载均衡分发到后端的Pod上。
-
-**流量出口**：
-
-1. Pod处理请求并生成响应。
-2. 响应通过网络层直接返回给发起请求的Traefik实例，绕过Service，利用网络层的NAT机制（源地址转换）。
-3. Traefik接收响应，并将其返回给外部客户端。
-
-#### 流量路径总结
-
-**请求路径**：
-客户端 → Traefik → Kubernetes Service → Pod
-
-**响应路径**：
-Pod → Traefik → 客户端
-
-这种流量路径确保了请求和响应能够快速且高效地在客户端和后端服务之间传输，从而提高了系统的性能和可靠性。
